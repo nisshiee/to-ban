@@ -5,14 +5,18 @@ import PlayProject._
 object ApplicationBuild extends Build {
 
     val appName         = "to-ban"
-    val appVersion      = "1.0-SNAPSHOT"
+    val appVersion      = "1.0.0-SNAPSHOT"
 
     val appDependencies = Seq(
       // Add your project dependencies here,
+      "org.scalaz" %% "scalaz-core" % "6.0.4"
+      ,"org.mockito" % "mockito-all" % "1.9.0" % "test"
+      ,"org.pegdown" % "pegdown" % "1.1.0" % "test"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
-      // Add your own project settings here      
+      // Add your own project settings here
+      testOptions in (Test, test) += Tests.Argument("console", "html", "junitxml")
     )
 
 }
