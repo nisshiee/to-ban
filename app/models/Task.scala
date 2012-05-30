@@ -12,9 +12,8 @@ object Task {
   def all(implicit c: Connection) = allSql.list(parser)
 
   def create(name: String)(implicit c: Connection) =
-    createSql.on('name -> name).executeUpdate() |> {
-      case 1 => true
-      case _ => false
+    createSql.on('name -> name).executeInsert(createKeyParser) |> {
+      case id => Task(id, name).some
     }
 }
 

@@ -15,6 +15,8 @@ INSERT INTO task
     name = {name}
 """)
 
+  val createKeyParser = int("null.SCOPE_IDENTITY()").single
+
   val allSql = SQL("""
 SELECT
     id, name

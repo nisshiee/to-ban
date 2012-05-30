@@ -27,7 +27,8 @@ class TaskTest extends Specification { def is =
       "何もCreateしてなければ空"                                                ! e8^
                                                                                 p^
     "createのテスト"                                                            ^
-      "createに成功するとtrueが返る"                                            ! e9^
+      "createに成功するとSome[Task]が返る"                                      ! e9^
+      "2回createに成功すると共にSome[Task]が返り、IDは異なる"                   ! e13^
                                                                                 p^
     "create→allのテスト"                                                       ^
       "1回createすると、allでそのTaskが返る"                                    ! e10^
@@ -52,19 +53,38 @@ class TaskTest extends Specification { def is =
 
   def e9 = running(FakeApplication()) {
     DB.withTransaction { implicit c =>
-      Task.create("testtask") must beTrue
+      val name = "testtask"
+      Task.create(name) must beSome.which(_.name ≟ name)
+    }
+  }
+
+  def e13 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      val name1 = "testtask1"
+      val name2 = "testtask2"
+      val createResult1 = Task.create(name1)
+      val createResult2 = Task.create(name2)
+
+      val validation = for {
+        task1 <- createResult1
+        task2 <- createResult2
+        idCheck = task1.id ≠ task2.id
+        nameCheck1 = name1 ≟ task1.name
+        nameCheck2 = name2 ≟ task2.name
+      } yield (idCheck && nameCheck1 && nameCheck2)
+      validation must beSome.which(identity)
     }
   }
 
   def e10 = running(FakeApplication()) {
     DB.withTransaction { implicit c =>
       val name = "testtask"
-      Task.create(name)
+      val createResult = Task.create(name)
       val all = Task.all
 
       val spec1 = all must have size(1)
       val spec2 = all ∘ {
-        case Task(_, n) => n ≟ name
+        case t @ Task(_, n) => (n ≟ name) && (t.some ≟ createResult)
       } must_== List(true)
 
       spec1 and spec2
@@ -74,15 +94,13 @@ class TaskTest extends Specification { def is =
   def e11 = running(FakeApplication()) {
     DB.withTransaction { implicit c =>
       val (name1, name2) = ("testtask1", "testtask2")
-      Task.create(name1)
-      Task.create(name2)
+      val createResult1 = Task.create(name1)
+      val createResult2 = Task.create(name2)
+      val ids = List(createResult1, createResult2).flatten ∘ (_.id)
       val all = Task.all
 
-      val spec1 = all ∘ (_.name) must contain("testtask1", "testtask2").only
-      val spec2 = {
-        val ids = all ∘ (_.id)
-        ids.size must_== ids.toSet.size
-      }
+      val spec1 = all ∘ (_.name) must contain(name1, name2).only
+      val spec2 = all ∘ (_.id) must containAllOf(ids).only
 
       spec1 and spec2
     }
@@ -91,12 +109,12 @@ class TaskTest extends Specification { def is =
   def e12 = running(FakeApplication()) {
     DB.withTransaction { implicit c =>
       val name = "日本語タスク"
-      Task.create(name)
+      val createResult = Task.create(name)
       val all = Task.all
 
       val spec1 = all must have size(1)
       val spec2 = all ∘ {
-        case Task(_, n) => n ≟ name
+        case t @ Task(_, n) => (n ≟ name) && (t.some ≟ createResult)
       } must_== List(true)
 
       spec1 and spec2

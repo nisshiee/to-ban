@@ -27,7 +27,8 @@ class MemberTest extends Specification { def is =
       "何もCreateしてなければ空"                                                ! e8^
                                                                                 p^
     "createのテスト"                                                            ^
-      "createに成功するとtrueが返る"                                            ! e9^
+      "createに成功するとSome[Member]が返る"                                    ! e9^
+      "2回createに成功すると共にSome[Member]が返り、IDは異なる"                 ! e13^
                                                                                 p^
     "create→allのテスト"                                                       ^
       "1回createすると、allでそのMemberが返る"                                  ! e10^
@@ -52,37 +53,55 @@ class MemberTest extends Specification { def is =
 
   def e9 = running(FakeApplication()) {
     DB.withTransaction { implicit c =>
-      Member.create("testmember") must beTrue
+      val name = "testmember"
+      Member.create(name) must beSome.which(_.name ≟ name)
+    }
+  }
+
+  def e13 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      val name1 = "testmember1"
+      val name2 = "testmember2"
+      val createResult1 = Member.create(name1)
+      val createResult2 = Member.create(name2)
+
+      val validation = for {
+        member1 <- createResult1
+        member2 <- createResult2
+        idCheck = member1.id ≠ member2.id
+        nameCheck1 = name1 ≟ member1.name
+        nameCheck2 = name2 ≟ member2.name
+      } yield (idCheck && nameCheck1 && nameCheck2)
+      validation must beSome.which(identity)
     }
   }
 
   def e10 = running(FakeApplication()) {
     DB.withTransaction { implicit c =>
       val name = "testmember"
-      Member.create(name)
+      val createResult = Member.create(name)
       val all = Member.all
 
       val spec1 = all must have size(1)
       val spec2 = all ∘ {
-        case Member(_, n) => n ≟ name
+        case m @ Member(_, n) => (n ≟ name) && (m.some ≟ createResult)
       } must_== List(true)
 
       spec1 and spec2
     }
   }
 
+
   def e11 = running(FakeApplication()) {
     DB.withTransaction { implicit c =>
       val (name1, name2) = ("testmember1", "testmember2")
-      Member.create(name1)
-      Member.create(name2)
+      val createResult1 = Member.create(name1)
+      val createResult2 = Member.create(name2)
+      val ids = List(createResult1, createResult2).flatten ∘ (_.id)
       val all = Member.all
 
       val spec1 = all ∘ (_.name) must contain(name1, name2).only
-      val spec2 = {
-        val ids = all ∘ (_.id)
-        ids.size must_== ids.toSet.size
-      }
+      val spec2 = all ∘ (_.id) must containAllOf(ids).only
 
       spec1 and spec2
     }
@@ -91,16 +110,15 @@ class MemberTest extends Specification { def is =
   def e12 = running(FakeApplication()) {
     DB.withTransaction { implicit c =>
       val name = "日本語メンバー"
-      Member.create(name)
+      val createResult = Member.create(name)
       val all = Member.all
 
       val spec1 = all must have size(1)
       val spec2 = all ∘ {
-        case Member(_, n) => n ≟ name
+        case m @ Member(_, n) => (n ≟ name) && (m.some ≟ createResult)
       } must_== List(true)
 
       spec1 and spec2
     }
   }
-
 }
