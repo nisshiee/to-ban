@@ -1,22 +1,39 @@
 package org.nisshiee.toban.model
 
 import org.specs2._
+import play.api.test._, Helpers._
+import play.api.Play.current
+
 import scalaz._, Scalaz._
+import play.api.db._
 
 class MemberTest extends Specification { def is =
 
-  "Memberケースクラスのテスト"                              ^
-    "MemberShowのテスト"                                    ^
-      "showsの値はnameと一致(asciiのみ)"                    ! e1^
-      "showsの値はnameと一致(日本語を含む)"                 ! e2^
-      "nameがnullの場合は空文字"                            ! e3^
-                                                            p^
-    "MemberEqualのテスト"                                   ^
-      "idが一致していればtrue(nameも一致)"                  ! e4^
-      "idが一致していればtrue(nameは異なる)"                ! e5^
-      "idが異なる場合はfalse(nameも異なる)"                 ! e6^
-      "idが異なる場合はfalse(nameは一致)"                   ! e7^
-                                                            end
+  "Memberケースクラスのテスト"                                                  ^
+    "MemberShowのテスト"                                                        ^
+      "showsの値はnameと一致(asciiのみ)"                                        ! e1^
+      "showsの値はnameと一致(日本語を含む)"                                     ! e2^
+      "nameがnullの場合は空文字"                                                ! e3^
+                                                                                p^
+    "MemberEqualのテスト"                                                       ^
+      "idが一致していればtrue(nameも一致)"                                      ! e4^
+      "idが一致していればtrue(nameは異なる)"                                    ! e5^
+      "idが異なる場合はfalse(nameも異なる)"                                     ! e6^
+      "idが異なる場合はfalse(nameは一致)"                                       ! e7^
+                                                                                p^
+                                                                                p^
+  "CRUDテスト"                                                                  ^
+    "allのテスト"                                                               ^
+      "何もCreateしてなければ空"                                                ! e8^
+                                                                                p^
+    "createのテスト"                                                            ^
+      "createに成功するとtrueが返る"                                            ! e9^
+                                                                                p^
+    "create→allのテスト"                                                       ^
+      "1回createすると、allでそのMemberが返る"                                  ! e10^
+      "2回createすると、allで2Memberが返り、idはそれぞれ異なる"                 ! e11^
+      "日本語名もcreateできて、allで取得しても化けない"                         ! e12^
+                                                                                end
 
   def e1 = Member(1, "test-member").shows must_== "test-member"
   def e2 = Member(1, "テストメンバ").shows must_== "テストメンバ"
@@ -26,4 +43,64 @@ class MemberTest extends Specification { def is =
   def e5 = Member(1, "test-member") ≟ Member(1, "other-member") must beTrue
   def e6 = Member(1, "test-member") ≟ Member(2, "other-member") must beFalse
   def e7 = Member(1, "test-member") ≟ Member(2, "test-member") must beFalse
+  
+  def e8 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      Member.all must be empty
+    }
+  }
+
+  def e9 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      Member.create("testmember") must beTrue
+    }
+  }
+
+  def e10 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      val name = "testmember"
+      Member.create(name)
+      val all = Member.all
+
+      val spec1 = all must have size(1)
+      val spec2 = all ∘ {
+        case Member(_, n) => n ≟ name
+      } must_== List(true)
+
+      spec1 and spec2
+    }
+  }
+
+  def e11 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      val (name1, name2) = ("testmember1", "testmember2")
+      Member.create(name1)
+      Member.create(name2)
+      val all = Member.all
+
+      val spec1 = all ∘ (_.name) must contain(name1, name2).only
+      val spec2 = {
+        val ids = all ∘ (_.id)
+        ids.size must_== ids.toSet.size
+      }
+
+      spec1 and spec2
+    }
+  }
+
+  def e12 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      val name = "日本語メンバー"
+      Member.create(name)
+      val all = Member.all
+
+      val spec1 = all must have size(1)
+      val spec2 = all ∘ {
+        case Member(_, n) => n ≟ name
+      } must_== List(true)
+
+      spec1 and spec2
+    }
+  }
+
 }

@@ -1,0 +1,24 @@
+package org.nisshiee.toban.model.db
+
+import anorm._, SqlParser._
+import org.nisshiee.toban.model._
+
+object MemberDb {
+
+  val parser: RowParser[Member] = int("id") ~ str("name") map {
+    case id ~ name => Member(id, name)
+  }
+
+  val createSql = SQL("""
+INSERT INTO member
+  SET
+    name = {name}
+""")
+
+  val allSql = SQL("""
+SELECT
+    id, name
+  FROM
+    member
+""")
+}
