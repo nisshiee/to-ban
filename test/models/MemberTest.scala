@@ -3,7 +3,7 @@ package org.nisshiee.toban.model
 import org.specs2._
 import scalaz._, Scalaz._
 
-class MemberTest extends Specification with Members { def is =
+class MemberTest extends Specification { def is =
 
   "Memberケースクラスのテスト"                              ^
     "MemberShowのテスト"                                    ^

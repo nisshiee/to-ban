@@ -3,7 +3,7 @@ package org.nisshiee.toban.model
 import org.specs2._
 import scalaz._, Scalaz._
 
-class TaskTest extends Specification with Tasks { def is =
+class TaskTest extends Specification { def is =
 
   "Taskケースクラスのテスト"                                ^
     "TaskShowのテスト"                                      ^
