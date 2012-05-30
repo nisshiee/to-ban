@@ -23,4 +23,13 @@ SELECT
   FROM
     task
 """)
+
+  val findSql = SQL("""
+SELECT
+    id, name
+  FROM
+    task
+  WHERE
+    id = {id}
+""")
 }

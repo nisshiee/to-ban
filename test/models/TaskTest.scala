@@ -34,6 +34,12 @@ class TaskTest extends Specification { def is =
       "1回createすると、allでそのTaskが返る"                                    ! e10^
       "2回createすると、allで2Taskが返り、idはそれぞれ異なる"                   ! e11^
       "日本語タスク名もcreateできて、allで取得しても化けない"                   ! e12^
+                                                                                p^
+    "findのテスト"                                                              ^
+      "存在しないIDに対するfindはNoneが返る"                                    ! e14^
+                                                                                p^
+    "create→findのテスト"                                                      ^
+      "1回createし、そのIDでfindすると対象レコードがSome[Task]で返る"           ! e15^
                                                                                 end
 
   def e1 = Task(1, "test-task").shows must_== "test-task"
@@ -118,6 +124,22 @@ class TaskTest extends Specification { def is =
       } must_== List(true)
 
       spec1 and spec2
+    }
+  }
+
+  def e14 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      Task.find(1) must beNone
+    }
+  }
+
+  def e15 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      val validation = for {
+        t <- Task.create("testtask")
+        found <- Task.find(t.id)
+      } yield ((t.id ≟ found.id) && (t.name ≟ found.name))
+      validation must beSome.which(identity)
     }
   }
 }

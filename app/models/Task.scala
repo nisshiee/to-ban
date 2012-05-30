@@ -15,6 +15,8 @@ object Task {
     createSql.on('name -> name).executeInsert(createKeyParser) |> {
       case id => Task(id, name).some
     }
+
+  def find(id: Int)(implicit c: Connection) = findSql.on('id -> id).singleOpt(parser)
 }
 
 trait Tasks {

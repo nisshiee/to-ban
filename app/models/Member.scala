@@ -15,6 +15,9 @@ object Member {
     createSql.on('name -> name).executeInsert(createKeyParser) |> {
       case id => Member(id, name).some
     }
+
+  def find(id: Int)(implicit c: Connection) =
+    findSql.on('id -> id).singleOpt(parser)
 }
 
 trait Members {

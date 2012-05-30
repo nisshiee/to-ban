@@ -34,6 +34,12 @@ class MemberTest extends Specification { def is =
       "1回createすると、allでそのMemberが返る"                                  ! e10^
       "2回createすると、allで2Memberが返り、idはそれぞれ異なる"                 ! e11^
       "日本語名もcreateできて、allで取得しても化けない"                         ! e12^
+                                                                                p^
+    "findのテスト"                                                              ^
+      "存在しないIDに対するfindはNoneが返る"                                    ! e14^
+                                                                                p^
+    "create→findのテスト"                                                      ^
+      "1回createし、そのIDでfindすると対象レコードがSome[Member]で返る"         ! e15^
                                                                                 end
 
   def e1 = Member(1, "test-member").shows must_== "test-member"
@@ -119,6 +125,22 @@ class MemberTest extends Specification { def is =
       } must_== List(true)
 
       spec1 and spec2
+    }
+  }
+
+  def e14 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      Member.find(1) must beNone
+    }
+  }
+
+  def e15 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      val validation = for {
+        t <- Member.create("testtask")
+        found <- Member.find(t.id)
+      } yield ((t.id ≟ found.id) && (t.name ≟ found.name))
+      validation must beSome.which(identity)
     }
   }
 }

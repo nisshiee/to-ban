@@ -23,4 +23,13 @@ SELECT
   FROM
     member
 """)
+
+  val findSql = SQL("""
+SELECT
+    id, name
+  FROM
+    member
+  WHERE
+    id = {id}
+""")
 }
