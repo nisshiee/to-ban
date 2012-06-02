@@ -1,0 +1,27 @@
+@(tasks: Seq[org.nisshiee.toban.model.Task])
+
+@import org.nisshiee.toban.controller._
+
+@main("[to-ban] task list") {
+
+<h1>to-ban</h1>
+<h2>task list</h2>
+
+@if(tasks.isEmpty) {
+  <p>please regist tasks</p>
+} else {
+  <ul>
+    @tasks.map { t =>
+      <li><a href="@routes.TaskController.detail(t.id)">@t.name</a></li>
+    }
+  </ul>
+}
+
+<h2>regist task</h2>
+
+<form action="@routes.TaskController.create" method="POST">
+  <input type="text" required name="@TaskController.taskNameKey">
+  <input type="submit" value="regist">
+</form>
+
+}

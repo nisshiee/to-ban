@@ -5,5 +5,20 @@
 # Home page
 GET     /                           controllers.Application.index
 
+# Task
+GET     /task                       org.nisshiee.toban.controller.TaskController.index
+GET     /task/detail/:id            org.nisshiee.toban.controller.TaskController.detail(id: Int)
+POST    /task/create                org.nisshiee.toban.controller.TaskController.create
+
+# Member
+GET     /member                     org.nisshiee.toban.controller.MemberController.index
+GET     /member/detail/:id          org.nisshiee.toban.controller.MemberController.detail(id: Int)
+POST    /member/create              org.nisshiee.toban.controller.MemberController.create
+
+# Toban
+GET     /toban/:taskId              org.nisshiee.toban.controller.TobanController.todayDetail(taskId: Int)
+GET     /toban/:taskId/$dateStr<\d{4}-\d{2}-\d{2}>          org.nisshiee.toban.controller.TobanController.detail(taskId: Int, dateStr: String)
+POST    /toban/assign               org.nisshiee.toban.controller.TobanController.assign
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
