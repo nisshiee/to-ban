@@ -10,6 +10,7 @@ object ApplicationBuild extends Build {
     val appDependencies = Seq(
       // Add your project dependencies here,
       "org.scalaz" %% "scalaz-core" % "6.0.4"
+      ,"org.scala-tools.time" %% "time" % "0.5"
       ,"org.mockito" % "mockito-all" % "1.9.0" % "test"
       ,"org.pegdown" % "pegdown" % "1.1.0" % "test"
     )
