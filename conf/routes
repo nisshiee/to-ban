@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET     /                           org.nisshiee.toban.controller.TableController.index
 
 # Task
 GET     /task                       org.nisshiee.toban.controller.TaskController.index
