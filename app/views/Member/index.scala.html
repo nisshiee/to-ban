@@ -4,24 +4,25 @@
 
 @main("[to-ban] member list") {
 
-<h1>to-ban</h1>
-<h2>member list</h2>
+<h1>member list</h1>
 
 @if(members.isEmpty) {
   <p>please regist members</p>
 } else {
-  <ul>
-    @members.map { m =>
-      <li><a href="@routes.MemberController.detail(m.id)">@m.name</a></li>
-    }
-  </ul>
+  <div class="well" style="padding-left:0;padding-right:0;">
+    <ul class="nav nav-list">
+      @members.map { m =>
+        <li><a href="@routes.MemberController.detail(m.id)"><i class="icon-user"></i>@m.name</a></li>
+      }
+    </ul>
+  </div>
 }
 
 <h2>regist member</h2>
 
-<form action="@routes.MemberController.create" method="POST">
+<form class="well form-inline" action="@routes.MemberController.create" method="POST">
   <input type="text" required name="@MemberController.memberNameKey">
-  <input type="submit" value="regist">
+  <input type="submit" class="btn btn-primary" value="regist">
 </form>
 
 }

@@ -4,24 +4,25 @@
 
 @main("[to-ban] task list") {
 
-<h1>to-ban</h1>
-<h2>task list</h2>
+<h1>task list</h1>
 
 @if(tasks.isEmpty) {
   <p>please regist tasks</p>
 } else {
-  <ul>
-    @tasks.map { t =>
-      <li><a href="@routes.TaskController.detail(t.id)">@t.name</a></li>
-    }
-  </ul>
+  <div class="well" style="padding-left:0;padding-right:0;">
+    <ul class="nav nav-list">
+      @tasks.map { t =>
+        <li><a href="@routes.TaskController.detail(t.id)"><i class="icon-tag"></i>@t.name</a></li>
+      }
+    </ul>
+  </div>
 }
 
 <h2>regist task</h2>
 
-<form action="@routes.TaskController.create" method="POST">
+<form class="well form-inline" action="@routes.TaskController.create" method="POST">
   <input type="text" required name="@TaskController.taskNameKey">
-  <input type="submit" value="regist">
+  <input type="submit" class="btn btn-primary" value="regist">
 </form>
 
 }
