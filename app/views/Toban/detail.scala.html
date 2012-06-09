@@ -1,0 +1,51 @@
+@(task: org.nisshiee.toban.model.Task, date: org.scala_tools.time.Imports.LocalDate, tobanOpt: Option[org.nisshiee.toban.model.Toban], members: Seq[org.nisshiee.toban.model.Member])
+
+@import org.nisshiee.toban.controller._
+@import scalaz._, Scalaz._
+
+@main("[to-ban] toban detail") {
+
+<h1>toban detail</h1>
+
+<h2>@task.shows - @date.toString</h2>
+
+@tobanOpt match {
+
+  case Some(toban) => {
+    <p style="margin-top:9px;"><span class="label label-info" style="font-size:24px;">@toban.member.shows</span></p>
+  }
+
+  case None => {
+    <p><span class="label">no assignment</span></p>
+  }
+
+}
+
+<h3>assign</h3>
+
+<form class="well" action="@routes.TobanController.assign" method="post">
+  <input type="hidden" name="@TobanController.taskIdKey" value="@task.id">
+  <input type="hidden" name="@TobanController.dateKey" value="@date.toString">
+
+  @tobanOpt match {
+
+    case Some(toban) => {
+      @members.map { m =>
+        @if(m === toban.member) {
+          <label><input type="radio" name="@TobanController.memberIdKey" value="@m.id" checked> @m.shows</label>
+        } else {
+          <label><input type="radio" name="@TobanController.memberIdKey" value="@m.id"> @m.shows</label>
+        }
+      }
+    }
+
+    case None => {
+      @members.map { m =>
+        <label><input type="radio" name="@TobanController.memberIdKey" value="@m.id"> @m.shows</label>
+      }
+    }
+  }
+
+  <input type="submit" class="btn btn-primary" value="assign">
+</form>
+}

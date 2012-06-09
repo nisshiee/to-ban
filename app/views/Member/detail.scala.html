@@ -1,0 +1,22 @@
+@(member: org.nisshiee.toban.model.Member)
+
+@import org.nisshiee.toban.controller._
+
+@main("[to-ban] member detail") {
+
+<h1>member detail</h1>
+
+<table class="table table-bordered">
+  <tbody>
+    <tr>
+      <th>ID</th>
+      <td>@member.id</td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td>@member.name</td>
+    </tr>
+  </tbody>
+</table>
+
+}

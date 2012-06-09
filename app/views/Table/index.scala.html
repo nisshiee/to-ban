@@ -1,0 +1,43 @@
+@(dates: Seq[org.scala_tools.time.Imports.LocalDate], tasks: Seq[org.nisshiee.toban.model.Task], assignments: Map[(org.scala_tools.time.Imports.LocalDate, org.nisshiee.toban.model.Task), org.nisshiee.toban.model.Member])
+
+@import org.nisshiee.toban.controller._
+@import org.nisshiee.toban.model._
+@import scalaz._, Scalaz._
+
+@main("[to-ban]") {
+
+<h1>to-ban</h1>
+
+<table class="table table-striped table-bordered">
+  <colgroup span="1">
+  <colgroup span="@tasks.size">
+  <thead>
+    <tr>
+      <th></th>
+      @tasks.map { t =>
+        <th>@t.shows</th>
+      }
+    </tr>
+  </thead>
+  <tbody>
+    @dates.map { d =>
+      <tr>
+        <th>@d.shows</th>
+        @tasks.map { t =>
+          @defining(assignments.get(d -> t)) { memberOpt =>
+            @memberOpt match {
+              case Some(m) => {
+                <td><a class="btn btn-info" href="@routes.TobanController.detail(t.id, d.shows)">@m.shows</a></td>
+              }
+              case None => {
+                <td><a class="btn" href="@routes.TobanController.detail(t.id, d.shows)">assign</a></td>
+              }
+            }
+          }
+        }
+      </tr>
+    }
+  </tbody>
+</table>
+
+}
