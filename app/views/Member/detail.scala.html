@@ -1,0 +1,27 @@
+@(member: org.nisshiee.toban.model.Member)
+
+@import org.nisshiee.toban.controller._
+
+@main("[to-ban] member detail") {
+
+<h1>to-ban</h1>
+<h2>member detail</h2>
+
+<table>
+  <tbody>
+    <tr>
+      <th>ID</th>
+      <td>@member.id</td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td>@member.name</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  <a href="@routes.MemberController.index">back to member list</a>
+</p>
+
+}

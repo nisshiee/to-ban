@@ -1,0 +1,27 @@
+@(task: org.nisshiee.toban.model.Task)
+
+@import org.nisshiee.toban.controller._
+
+@main("[to-ban] task detail") {
+
+<h1>to-ban</h1>
+<h2>task detail</h2>
+
+<table>
+  <tbody>
+    <tr>
+      <th>ID</th>
+      <td>@task.id</td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td>@task.name</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  <a href="@routes.TaskController.index">back to task list</a>
+</p>
+
+}

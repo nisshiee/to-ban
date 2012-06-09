@@ -1,0 +1,27 @@
+@(members: Seq[org.nisshiee.toban.model.Member])
+
+@import org.nisshiee.toban.controller._
+
+@main("[to-ban] member list") {
+
+<h1>to-ban</h1>
+<h2>member list</h2>
+
+@if(members.isEmpty) {
+  <p>please regist members</p>
+} else {
+  <ul>
+    @members.map { m =>
+      <li><a href="@routes.MemberController.detail(m.id)">@m.name</a></li>
+    }
+  </ul>
+}
+
+<h2>regist member</h2>
+
+<form action="@routes.MemberController.create" method="POST">
+  <input type="text" required name="@MemberController.memberNameKey">
+  <input type="submit" value="regist">
+</form>
+
+}
