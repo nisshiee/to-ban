@@ -8,7 +8,7 @@
 
 <h1>to-ban</h1>
 
-<table>
+<table class="table table-striped table-bordered">
   <colgroup span="1">
   <colgroup span="@tasks.size">
   <thead>
@@ -27,10 +27,10 @@
           @defining(assignments.get(d -> t)) { memberOpt =>
             @memberOpt match {
               case Some(m) => {
-                <td><a href="@routes.TobanController.detail(t.id, d.shows)">@m.shows</a></td>
+                <td><a class="btn btn-info" href="@routes.TobanController.detail(t.id, d.shows)">@m.shows</a></td>
               }
               case None => {
-                <td><a href="@routes.TobanController.detail(t.id, d.shows)">(assign)</a></td>
+                <td><a class="btn" href="@routes.TobanController.detail(t.id, d.shows)">assign</a></td>
               }
             }
           }

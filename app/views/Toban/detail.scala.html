@@ -5,52 +5,47 @@
 
 @main("[to-ban] toban detail") {
 
-<h1>to-ban</h1>
-<h2>toban detail</h2>
+<h1>toban detail</h1>
 
-<h3>@task.shows - @date.toString</h3>
+<h2>@task.shows - @date.toString</h2>
 
 @tobanOpt match {
 
   case Some(toban) => {
-    <p>toban: @toban.member.shows</p>
+    <p style="margin-top:9px;"><span class="label label-info" style="font-size:24px;">@toban.member.shows</span></p>
   }
 
   case None => {
-    <p>no assignment</p>
+    <p><span class="label">no assignment</span></p>
   }
 
 }
 
 <h3>assign</h3>
 
-<form action="@routes.TobanController.assign" method="post">
+<form class="well" action="@routes.TobanController.assign" method="post">
   <input type="hidden" name="@TobanController.taskIdKey" value="@task.id">
   <input type="hidden" name="@TobanController.dateKey" value="@date.toString">
 
   @tobanOpt match {
 
     case Some(toban) => {
-      <ul>
-        @members.map { m =>
-          @if(m === toban.member) {
-            <li><label><input type="radio" name="@TobanController.memberIdKey" value="@m.id" checked> @m.shows</label></li>
-          } else {
-            <li><label><input type="radio" name="@TobanController.memberIdKey" value="@m.id"> @m.shows</label></li>
-          }
+      @members.map { m =>
+        @if(m === toban.member) {
+          <label><input type="radio" name="@TobanController.memberIdKey" value="@m.id" checked> @m.shows</label>
+        } else {
+          <label><input type="radio" name="@TobanController.memberIdKey" value="@m.id"> @m.shows</label>
         }
-      </ul>
+      }
     }
 
     case None => {
-      <ul>
-        @members.map { m =>
-          <li><label><input type="radio" name="@TobanController.memberIdKey" value="@m.id"> @m.shows</label></li>
-        }
-      </ul>
+      @members.map { m =>
+        <label><input type="radio" name="@TobanController.memberIdKey" value="@m.id"> @m.shows</label>
+      }
     }
   }
 
-  <input type="submit" value="assign">
+  <input type="submit" class="btn btn-primary" value="assign">
 </form>
 }
