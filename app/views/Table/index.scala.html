@@ -3,6 +3,7 @@
 @import org.nisshiee.toban.controller._
 @import org.nisshiee.toban.model._
 @import scalaz._, Scalaz._
+@import java.util.Locale
 
 @main("[to-ban]") {
 
@@ -22,7 +23,20 @@
   <tbody>
     @dates.map { d =>
       <tr>
-        <th>@d.shows</th>
+        @defining(d.dayOfWeekType) { dayOfWeekType =>
+          @dayOfWeekType match {
+            case Bizday => {
+              <th>@d.toString("yyyy-MM-dd (EEE)", Locale.US)</th>
+            }
+            case Saturday => {
+              <th class="saturday">@d.toString("yyyy-MM-dd (EEE)", Locale.US)</th>
+            }
+            case Sunday => {
+              <th class="sunday">@d.toString("yyyy-MM-dd (EEE)", Locale.US)</th>
+            }
+          }
+        }
+
         @tasks.map { t =>
           @defining(assignments.get(d -> t)) { memberOpt =>
             @memberOpt match {
