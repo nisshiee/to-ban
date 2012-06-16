@@ -13,13 +13,24 @@ object TableController extends Controller {
 
   def index = Action {
 
-    val dates = (-5 to 5).toList ∘ { i => LocalDate.today + i.day }
+    val dates = LocalDate.today.weeklyList
+    tableByDates(dates)
+  }
+
+  def week(dateStr: String) = Action {
+
+    val dateOpt = try { new LocalDate(dateStr).some } catch { case _ => none[LocalDate] }
+    val resultOpt: Option[Result] = dateOpt ∘ { _.weeklyList |> tableByDates }
+    resultOpt | Redirect(routes.TableController.index)
+  }
+
+  private def tableByDates(dates: Seq[LocalDate]): Result = {
 
     val tasksAssignOpt = DB.withTransaction { implicit c =>
       Task.all match {
         case Nil => None
         case l => (for {
-          date <- dates
+          date <- dates.toList
           task <- l
           toban <- Toban.find(task.id, date)
           member = toban.member
