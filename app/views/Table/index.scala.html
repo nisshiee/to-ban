@@ -28,7 +28,11 @@
   </thead>
   <tbody>
     @dates.map { d =>
-      <tr>
+      @if(d.isToday) {
+        <tr class="today">
+      } else {
+        <tr>
+      }
         @defining(d.dayOfWeekType) { dayOfWeekType =>
           @dayOfWeekType match {
             case Bizday => {
