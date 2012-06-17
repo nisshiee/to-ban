@@ -1,0 +1,11 @@
+.saturday {
+  color: blue;
+}
+
+.sunday {
+  color: red;
+}
+
+.today th, .today td {
+  background-color: #FFFFCC !important;
+}

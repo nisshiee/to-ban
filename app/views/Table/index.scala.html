@@ -1,8 +1,15 @@
-@(dates: Seq[org.scala_tools.time.Imports.LocalDate], tasks: Seq[org.nisshiee.toban.model.Task], assignments: Map[(org.scala_tools.time.Imports.LocalDate, org.nisshiee.toban.model.Task), org.nisshiee.toban.model.Member])
+@(
+   dates: Seq[org.scala_tools.time.Imports.LocalDate]
+  ,tasks: Seq[org.nisshiee.toban.model.Task]
+  ,assignments: Map[(org.scala_tools.time.Imports.LocalDate, org.nisshiee.toban.model.Task), org.nisshiee.toban.model.Member]
+  ,prevWeekDate: org.scala_tools.time.Imports.LocalDate
+  ,nextWeekDate: org.scala_tools.time.Imports.LocalDate
+)
 
 @import org.nisshiee.toban.controller._
 @import org.nisshiee.toban.model._
 @import scalaz._, Scalaz._
+@import java.util.Locale
 
 @main("[to-ban]") {
 
@@ -21,8 +28,25 @@
   </thead>
   <tbody>
     @dates.map { d =>
-      <tr>
-        <th>@d.shows</th>
+      @if(d.isToday) {
+        <tr class="today">
+      } else {
+        <tr>
+      }
+        @defining(d.dayOfWeekType) { dayOfWeekType =>
+          @dayOfWeekType match {
+            case Bizday => {
+              <th>@d.toString("yyyy-MM-dd (EEE)", Locale.US)</th>
+            }
+            case Saturday => {
+              <th class="saturday">@d.toString("yyyy-MM-dd (EEE)", Locale.US)</th>
+            }
+            case Sunday => {
+              <th class="sunday">@d.toString("yyyy-MM-dd (EEE)", Locale.US)</th>
+            }
+          }
+        }
+
         @tasks.map { t =>
           @defining(assignments.get(d -> t)) { memberOpt =>
             @memberOpt match {
@@ -39,5 +63,13 @@
     }
   </tbody>
 </table>
+
+<div class="pagination pagination-centered">
+  <ul>
+    <li><a href="@routes.TableController.week(prevWeekDate.shows)">&lt;&lt; Prev</a></li>
+    <li><a href="@routes.TableController.index">today</a></li>
+    <li><a href="@routes.TableController.week(nextWeekDate.shows)">Next &gt;&gt;</a></li>
+  </ul>
+</div>
 
 }
