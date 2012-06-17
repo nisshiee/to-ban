@@ -20,5 +20,8 @@ GET     /toban/:taskId              org.nisshiee.toban.controller.TobanControlle
 GET     /toban/:taskId/$dateStr<\d{4}-\d{2}-\d{2}>          org.nisshiee.toban.controller.TobanController.detail(taskId: Int, dateStr: String)
 POST    /toban/assign               org.nisshiee.toban.controller.TobanController.assign
 
+GET     /week                       org.nisshiee.toban.controller.TableController.index
+GET     /week/$dateStr<\d{4}-\d{2}-\d{2}>                   org.nisshiee.toban.controller.TableController.week(dateStr: String)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

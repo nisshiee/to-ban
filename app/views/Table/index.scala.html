@@ -1,4 +1,10 @@
-@(dates: Seq[org.scala_tools.time.Imports.LocalDate], tasks: Seq[org.nisshiee.toban.model.Task], assignments: Map[(org.scala_tools.time.Imports.LocalDate, org.nisshiee.toban.model.Task), org.nisshiee.toban.model.Member])
+@(
+   dates: Seq[org.scala_tools.time.Imports.LocalDate]
+  ,tasks: Seq[org.nisshiee.toban.model.Task]
+  ,assignments: Map[(org.scala_tools.time.Imports.LocalDate, org.nisshiee.toban.model.Task), org.nisshiee.toban.model.Member]
+  ,prevWeekDate: org.scala_tools.time.Imports.LocalDate
+  ,nextWeekDate: org.scala_tools.time.Imports.LocalDate
+)
 
 @import org.nisshiee.toban.controller._
 @import org.nisshiee.toban.model._
@@ -53,5 +59,13 @@
     }
   </tbody>
 </table>
+
+<div class="pagination pagination-centered">
+  <ul>
+    <li><a href="@routes.TableController.week(prevWeekDate.shows)">&lt;&lt; Prev</a></li>
+    <li><a href="@routes.TableController.index">today</a></li>
+    <li><a href="@routes.TableController.week(nextWeekDate.shows)">Next &gt;&gt;</a></li>
+  </ul>
+</div>
 
 }
