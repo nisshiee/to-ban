@@ -5,3 +5,7 @@
 .sunday {
   color: red;
 }
+
+.today th, .today td {
+  background-color: #FFFFCC !important;
+}

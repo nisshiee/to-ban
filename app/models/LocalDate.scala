@@ -23,6 +23,8 @@ case class MyRichLocalDate(value: LocalDate) {
     val start = value - (value.dayOfWeek.get % 7).day
     (0 until 7).toList ∘ (_.day) ∘ (start +)
   }
+
+  def isToday = LocalDate.today ≟ value
 }
 
 sealed trait DayOfWeekType
