@@ -9,3 +9,26 @@
 .today th, .today td {
   background-color: #FFFFCC !important;
 }
+
+#assign label {
+  color: #333;
+  background-color: transparent;
+  height: 21px;
+  font-size: 13px;
+  line-height: 18px;
+  -webkit-transition: all 0.1s linear;
+  -moz-transition: all 0.1s linear;
+  -o-transition: all 0.1s linear;
+  transition: all 0.1s linear;
+
+  margin: 0px;
+  padding-left: 5px;
+}
+
+#assign label:hover {
+  color: #FFF;
+  background-color: #08c;
+  height: 32px;
+  font-size: 22px;
+  line-height: 30px;
+}
