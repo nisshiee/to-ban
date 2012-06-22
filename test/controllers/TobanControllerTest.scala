@@ -23,7 +23,7 @@ class TobanControllerTest extends Specification { def is =
     "存在しないタスクIDをリクエストした場合、/taskにリダイレクト"               ! e6^
     "存在しないメンバーIDをリクエストした場合、元の/toban/detailにリダイレクト" ! e7^
     "不正な日付をリクエストした場合、/taskにリダイレクト"                       ! e8^
-    "成功したら/toban/detailにリダイレクト"                                     ! e9^
+    "成功したら/week/<対象日>にリダイレクト"                                    ! e9^
     "メンバーが選択されていない場合、元の/toban/detailにリダイレクト"           ! e10^
                                                                                 end
 
@@ -160,7 +160,7 @@ class TobanControllerTest extends Specification { def is =
       )
       (TobanController.assign(request), taskId, dateStr)
     }
-    redirectLocation(result) must beSome.which("/toban/%d/%s".format(taskId, dateStr) ==)
+    redirectLocation(result) must beSome.which("/week/%s".format(dateStr) ==)
   }
 
   def e10 = {

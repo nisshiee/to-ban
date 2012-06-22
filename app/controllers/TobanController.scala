@@ -70,7 +70,7 @@ object TobanController extends Controller {
     } yield toban
 
     val resultVld = tobanVld map { toban =>
-      Redirect(routes.TobanController.detail(toban.task.id, toban.date.toString))
+      Redirect(routes.TableController.week(toban.date.toString))
     }
     resultVld ||| {
       case TaskList => Redirect(routes.TaskController.index)
