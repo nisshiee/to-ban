@@ -52,7 +52,7 @@ object TobanController extends Controller {
         case _ => None
       }
       toban <- DB.withTransaction { implicit c =>
-        Toban.createOrUpdate(taskId, date, memberId)
+        Toban.replace(taskId, date, memberId).toOption
       }
     } yield toban
 
