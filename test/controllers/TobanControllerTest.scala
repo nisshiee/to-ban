@@ -21,9 +21,10 @@ class TobanControllerTest extends Specification { def is =
                                                                                 p^
   "assign"                                                                      ^
     "存在しないタスクIDをリクエストした場合、/taskにリダイレクト"               ! e6^
-    "存在しないメンバーIDをリクエストした場合、/taskにリダイレクト"             ! e7^
+    "存在しないメンバーIDをリクエストした場合、元の/toban/detailにリダイレクト" ! e7^
     "不正な日付をリクエストした場合、/taskにリダイレクト"                       ! e8^
     "成功したら/toban/detailにリダイレクト"                                     ! e9^
+    "メンバーが選択されていない場合、元の/toban/detailにリダイレクト"           ! e10^
                                                                                 end
 
   def e1 = {
@@ -93,12 +94,12 @@ class TobanControllerTest extends Specification { def is =
   }
 
   def e7 = {
-    val result = running(FakeApplication()) {
+    val dateStr = "2012-01-01"
+    val (result, taskId) = running(FakeApplication()) {
       val (taskId, memberId) = DB.withTransaction { implicit c =>
         val Some(Task(taskId, _)) = Task.create("testtask")
         (taskId, 1)
       }
-      val dateStr = "2012-01-01"
       val request = new FakeRequest(
         "POST"
         ,routes.TobanController.assign.toString
@@ -109,9 +110,11 @@ class TobanControllerTest extends Specification { def is =
           ,TobanController.memberIdKey -> Seq(memberId.toString)
         )
       )
-      TobanController.assign(request)
+      TobanController.assign(request) -> taskId
     }
-    redirectLocation(result) must beSome.which("/task" ==)
+
+    val expected = "/toban/" + taskId + "/" + dateStr
+    redirectLocation(result) must beSome.which(expected ==)
   }
 
   def e8 = {
@@ -158,5 +161,28 @@ class TobanControllerTest extends Specification { def is =
       (TobanController.assign(request), taskId, dateStr)
     }
     redirectLocation(result) must beSome.which("/toban/%d/%s".format(taskId, dateStr) ==)
+  }
+
+  def e10 = {
+    val dateStr = "2012-01-01"
+    val (result, taskId) = running(FakeApplication()) {
+      val (taskId, memberId) = DB.withTransaction { implicit c =>
+        val Some(Task(taskId, _)) = Task.create("testtask")
+        (taskId, 1)
+      }
+      val request = new FakeRequest(
+        "POST"
+        ,routes.TobanController.assign.toString
+        ,FakeHeaders()
+        ,Map(
+          TobanController.taskIdKey -> Seq(taskId.toString)
+          ,TobanController.dateKey -> Seq(dateStr)
+        )
+      )
+      TobanController.assign(request) -> taskId
+    }
+
+    val expected = "/toban/" + taskId + "/" + dateStr
+    redirectLocation(result) must beSome.which(expected ==)
   }
 }
