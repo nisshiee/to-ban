@@ -36,29 +36,46 @@ object TobanController extends Controller {
     resultOpt | Redirect(routes.TaskController.index)
   }
 
+
+
+  sealed trait AssignRedirect
+  case object TaskList extends AssignRedirect
+  case class TobanDetail(taskId: Int, date: LocalDate) extends AssignRedirect
+
   def assign = Action(parse.urlFormEncoded) { implicit req =>
 
-    val tobanOpt = for {
-      taskId <- req.body.get(taskIdKey) >>= {
-        case Seq(s) => s.parseInt.toOption
-        case _ => None
+    import Validation.Monad._
+
+    val tobanVld = for {
+      taskId <- req.body.get(taskIdKey).toSuccess[AssignRedirect](TaskList) >>= {
+        case Seq(s) => s.parseInt.fail.map(_ => TaskList).validation
+        case _ => TaskList.fail
       }
-      date <- req.body.get(dateKey) >>= {
-        case Seq(s) => try { new LocalDate(s).some } catch { case _ => none[LocalDate] }
-        case _ => None
+      date <- req.body.get(dateKey).toSuccess[AssignRedirect](TaskList) >>= {
+        case Seq(s) => try { new LocalDate(s).success } catch { case _ => TaskList.fail }
+        case _ => TaskList.fail
       }
-      memberId <- req.body.get(memberIdKey) >>= {
-        case Seq(s) => s.parseInt.toOption
-        case _ => None
+      memberId <- req.body.get(memberIdKey).toSuccess[AssignRedirect](TobanDetail(taskId, date)) >>= {
+        case Seq(s) => s.parseInt.fail.map(_ => TobanDetail(taskId, date)).validation
+        case _ => TobanDetail(taskId, date).fail
       }
       toban <- DB.withTransaction { implicit c =>
-        Toban.replace(taskId, date, memberId).toOption
+
+        Toban.replace(taskId, date, memberId).fail ∘ {
+          case Toban.NoTask => TaskList
+          case Toban.NoMember => TobanDetail(taskId, date)
+          case _ => TobanDetail(taskId, date)
+        } |> (_.validation)
       }
     } yield toban
 
-    val resultOpt = tobanOpt map { toban =>
-      Redirect(routes.TobanController.detail(toban.task.id, toban.date.toString))
+    val resultVld = tobanVld map { toban =>
+      Redirect(routes.TableController.week(toban.date.toString))
     }
-    resultOpt | Redirect(routes.TaskController.index)
+    resultVld ||| {
+      case TaskList => Redirect(routes.TaskController.index)
+      case TobanDetail(t, d) =>
+        Redirect(routes.TobanController.detail(t, d.toString))
+    }
   }
 }
