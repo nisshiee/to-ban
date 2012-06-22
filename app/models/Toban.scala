@@ -1,6 +1,6 @@
 package org.nisshiee.toban.model
 
-import scalaz._, Scalaz._
+import scalaz._, Scalaz._, Validation.Monad._
 import java.sql.Connection
 
 import org.nisshiee.toban.model.db.TobanDb._
@@ -14,26 +14,32 @@ object Toban {
     ,'date -> date.toDate
   ).singleOpt(parser)
 
-  def createOrUpdate(taskId: Int, date: LocalDate, memberId: Int)(implicit c: Connection) =
+
+  sealed trait ReplaceError
+  case object NoTask extends ReplaceError
+  case object NoMember extends ReplaceError
+  case object DbError extends ReplaceError
+
+  def replace(taskId: Int, date: LocalDate, memberId: Int)(implicit c: Connection) =
     for {
-      task <- Task.find(taskId)
-      member <- Member.find(memberId)
+      task <- Task.find(taskId).toSuccess[ReplaceError](NoTask)
+      member <- Member.find(memberId).toSuccess[ReplaceError](NoMember)
       toban <- find(taskId, date) match {
         case Some(t) => updateSql.on(
             'taskId -> taskId
             ,'date -> date.toDate
             ,'memberId -> memberId
           ).executeUpdate() match {
-          case 1 => Toban(task, date, member).some
-          case _ => none
+          case 1 => Toban(task, date, member).success[ReplaceError]
+          case _ => DbError.fail
         }
         case None => createSql.on(
             'taskId -> taskId
             ,'date -> date.toDate
             ,'memberId -> memberId
           ).executeUpdate() match {
-          case 1 => Toban(task, date, member).some
-          case _ => none
+          case 1 => Toban(task, date, member).success[ReplaceError]
+          case _ => DbError.fail
         }
       }
     } yield toban
