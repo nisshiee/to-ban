@@ -87,7 +87,7 @@ class TableControllerTest extends Specification { def is =
       for {
         task <- Task.create("testtask")
         member <- Member.create("member")
-        toban <- Toban.createOrUpdate(task.id, date, member.id)
+        toban <- Toban.replace(task.id, date, member.id).toOption
         result <- TableController.getTasksAssign(List(date, date + Period.days(1)))
       } yield {
         val (tasks, assign) = result
@@ -122,7 +122,7 @@ class TableControllerTest extends Specification { def is =
       for {
         task <- Task.create("testtask")
         member <- Member.create("member")
-        toban <- Toban.createOrUpdate(task.id, date, member.id)
+        toban <- Toban.replace(task.id, date, member.id).toOption
         result <- TableController.getTasksAssign(List())
       } yield {
         val (tasks, assign) = result
