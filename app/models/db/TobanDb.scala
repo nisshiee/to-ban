@@ -12,7 +12,7 @@ object TobanDb {
     int("member.id") ~
     str("member.name") map {
       case taskId ~ taskName ~ date ~ memberId ~ memberName =>
-        Toban(Task(taskId, taskName), date.toLocalDate, Member(memberId, memberName))
+        Toban(Task(taskId, taskName), date.toLocalDate, Member(memberId, memberName, Member.Normal))
     }
 
   val findSql = SQL("""

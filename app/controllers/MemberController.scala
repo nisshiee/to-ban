@@ -38,7 +38,7 @@ object MemberController extends Controller {
       case _ => None
     }
     val resultOpt: Option[Result] = memberOpt map {
-      case Member(id, _) => Redirect(routes.MemberController.detail(id))
+      case Member(id, _, _) => Redirect(routes.MemberController.detail(id))
     }
     resultOpt | Redirect(routes.MemberController.index)
   }

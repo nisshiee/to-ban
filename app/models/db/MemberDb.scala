@@ -6,7 +6,7 @@ import org.nisshiee.toban.model._
 object MemberDb {
 
   val parser: RowParser[Member] = int("id") ~ str("name") map {
-    case id ~ name => Member(id, name)
+    case id ~ name => Member(id, name, Member.Normal)
   }
 
   val createSql = SQL("""

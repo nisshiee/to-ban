@@ -5,7 +5,7 @@ import java.sql.Connection
 
 import org.nisshiee.toban.model.db.MemberDb._
 
-case class Member(id: Int, name: String)
+case class Member(id: Int, name: String, status: Member.Status)
 
 object Member {
 
@@ -33,7 +33,7 @@ object Member {
 
   def create(name: String)(implicit c: Connection) =
     createSql.on('name -> name).executeInsert(createKeyParser) |> {
-      case id => Member(id, name).some
+      case id => Member(id, name, Normal).some
     }
 
   def find(id: Int)(implicit c: Connection) =
@@ -43,7 +43,7 @@ object Member {
 trait Members {
 
   implicit lazy val MemberShow = shows[Member] {
-    case Member(_, name) => Option(name) | ""
+    case Member(_, name, _) => Option(name) | ""
   }
 
   implicit lazy val MemberEqual = equalBy[Member, Int](_.id)

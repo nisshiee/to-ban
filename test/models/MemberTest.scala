@@ -55,14 +55,18 @@ class MemberTest extends Specification with DataTables { def is =
       "パターンマッチで使えること"                                              ! e22^
                                                                                 end
 
-  def e1 = Member(1, "test-member").shows must_== "test-member"
-  def e2 = Member(1, "テストメンバ").shows must_== "テストメンバ"
-  def e3 = Member(1, null).shows must_== ""
+  def e1 = Member(1, "test-member", Member.Normal).shows must_== "test-member"
+  def e2 = Member(1, "テストメンバ", Member.Normal).shows must_== "テストメンバ"
+  def e3 = Member(1, null, Member.Normal).shows must_== ""
 
-  def e4 = Member(1, "test-member") ≟ Member(1, "test-member") must beTrue
-  def e5 = Member(1, "test-member") ≟ Member(1, "other-member") must beTrue
-  def e6 = Member(1, "test-member") ≟ Member(2, "other-member") must beFalse
-  def e7 = Member(1, "test-member") ≟ Member(2, "test-member") must beFalse
+  def e4 =
+    Member(1, "test-member", Member.Normal) ≟ Member(1, "test-member", Member.Normal) must beTrue
+  def e5 =
+    Member(1, "test-member", Member.Normal) ≟ Member(1, "other-member", Member.Normal) must beTrue
+  def e6 =
+    Member(1, "test-member", Member.Normal) ≟ Member(2, "other-member", Member.Normal) must beFalse
+  def e7 =
+    Member(1, "test-member", Member.Normal) ≟ Member(2, "test-member", Member.Normal) must beFalse
   
   def e8 = running(FakeApplication()) {
     DB.withTransaction { implicit c =>
@@ -103,7 +107,7 @@ class MemberTest extends Specification with DataTables { def is =
 
       val spec1 = all must have size(1)
       val spec2 = all ∘ {
-        case m @ Member(_, n) => (n ≟ name) && (m.some ≟ createResult)
+        case m @ Member(_, n, _) => (n ≟ name) && (m.some ≟ createResult)
       } must_== List(true)
 
       spec1 and spec2
@@ -134,7 +138,7 @@ class MemberTest extends Specification with DataTables { def is =
 
       val spec1 = all must have size(1)
       val spec2 = all ∘ {
-        case m @ Member(_, n) => (n ≟ name) && (m.some ≟ createResult)
+        case m @ Member(_, n, _) => (n ≟ name) && (m.some ≟ createResult)
       } must_== List(true)
 
       spec1 and spec2
