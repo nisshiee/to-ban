@@ -37,4 +37,23 @@ SELECT
   WHERE
     id = {id}
 """)
+
+  val deleteSql = {
+    val (Member.Status(deleted), Member.Status(normal)) =
+      (Member.Deleted, Member.Normal)
+
+    SQL("""
+UPDATE
+    member
+  SET
+    status = {deleted}
+  WHERE
+    id = {id}
+    AND status = {normal}
+""").on(
+       'deleted -> deleted
+      ,'normal -> normal
+    )
+  }
+
 }

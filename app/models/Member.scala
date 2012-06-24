@@ -38,6 +38,15 @@ object Member {
 
   def find(id: Int)(implicit c: Connection) =
     findSql.on('id -> id).singleOpt(parser)
+
+  def delete(id: Int)(implicit c: Connection) =
+    for {
+      member <- Member.find(id)
+      deleted <- deleteSql.on('id -> id).executeUpdate() match {
+        case 1 => Member(id, member.name, Member.Deleted).some
+        case _ => none
+      }
+    } yield deleted
 }
 
 trait Members {

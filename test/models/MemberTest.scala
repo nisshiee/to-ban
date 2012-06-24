@@ -38,8 +38,18 @@ class MemberTest extends Specification { def is =
     "findのテスト"                                                              ^
       "存在しないIDに対するfindはNoneが返る"                                    ! e14^
                                                                                 p^
-    "create→findのテスト"                                                      ^
-      "1回createし、そのIDでfindすると対象レコードがSome[Member]で返る"         ! e15^
+    "create→find→delete→find→deleteのテスト"                                ^
+      """create→成功
+find→createしたmemberがSome[Member]で返る
+delete→deleteに成功し、statusが更新されたmemberがSome[Member]で返る
+find→statusがDeletedになったmemberがSome[Member]で返る
+delete→既にstatusがNormalでないのでNoneが返る"""                               ! e15^
+                                                                                p^
+    "deleteのテスト"                                                            ^
+      "存在しないIDに対するdeleteはNoneが返る"                                  ! e16^
+      "statusがNormalでないmemberに対するdeleteはNoneが返る"                    ! e17^
+      """statusがNormalであるmemberに対するdeleteは
+statusが更新されたMember.someが返る"""                                         ! e18^
                                                                                 end
 
   def e1 = Member(1, "test-member", Member.Normal).shows must_== "test-member"
@@ -141,11 +151,50 @@ class MemberTest extends Specification { def is =
   def e15 = running(FakeApplication()) {
     DB.withTransaction { implicit c =>
       val validation = for {
-        t <- Member.create("testtask")
-        found <- Member.find(t.id)
-      } yield ((t.id ≟ found.id) && (t.name ≟ found.name))
+        m1 <- Member.create("testmember")
+        m2 <- Member.find(m1.id)
+        m3 <- Member.delete(m1.id)
+        m4 <- Member.find(m1.id)
+        m5Opt = Member.delete(m1.id)
+      } yield (
+        (m1.id ≟ m2.id) &&
+        (m1.name ≟ m2.name) &&
+        (m2.status == Member.Normal) &&
+        (m1.id ≟ m3.id) &&
+        (m3.status == Member.Deleted) &&
+        (m1.id ≟ m4.id) &&
+        (m4.status == Member.Deleted) &&
+        (m5Opt >>=| false.some | true)
+      )
       validation must beSome.which(identity)
     }
   }
 
+  def e16 = running(FakeApplication()) {
+    DB.withConnection { implicit c =>
+      Member.delete(1) must beNone
+    }
+  }
+
+  def e17 = running(FakeApplication()) {
+    DB.withConnection { implicit c =>
+      for {
+        member <- Member.create("testmember")
+        id = member.id
+        _ <- Member.delete(id)
+      } yield Member.delete(id) == None
+    } must beSome.which(identity)
+  }
+
+  def e18 = running(FakeApplication()) {
+    DB.withConnection { implicit c =>
+      for {
+        before <- Member.create("testmember")
+        id = before.id
+        after <- Member.delete(id)
+      } yield after
+    } must beSome.which { m =>
+      m.status == Member.Deleted
+    }
+  }
 }
