@@ -47,4 +47,10 @@ trait Members {
   }
 
   implicit lazy val MemberEqual = equalBy[Member, Int](_.id)
+
+  implicit lazy val MemberStatusShow = shows[Member.Status] {
+    case Member.Normal => "normal"
+    case Member.Deleted => "deleted"
+    case Member.Undefined => "-"
+  }
 }

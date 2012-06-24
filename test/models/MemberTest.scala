@@ -7,7 +7,7 @@ import play.api.Play.current
 import scalaz._, Scalaz._
 import play.api.db._
 
-class MemberTest extends Specification with DataTables { def is =
+class MemberTest extends Specification { def is =
 
   "Memberケースクラスのテスト"                                                  ^
     "MemberShowのテスト"                                                        ^
@@ -40,19 +40,6 @@ class MemberTest extends Specification with DataTables { def is =
                                                                                 p^
     "create→findのテスト"                                                      ^
       "1回createし、そのIDでfindすると対象レコードがSome[Member]で返る"         ! e15^
-                                                                                p^
-                                                                                p^
-  "Member.Statusテスト"                                                         ^
-    "applyのテスト"                                                             ^
-      "0 => Normal"                                                             ! e16^
-      "1 => Deleted"                                                            ! e17^
-      "それ以外 => Undefined"                                                   ! e18^
-                                                                                p^
-    "unapplyのテスト"                                                           ^
-      "Normal => Some(0)"                                                       ! e19^
-      "Deleted => Some(1)"                                                      ! e20^
-      "Undefined => None"                                                       ! e21^
-      "パターンマッチで使えること"                                              ! e22^
                                                                                 end
 
   def e1 = Member(1, "test-member", Member.Normal).shows must_== "test-member"
@@ -161,22 +148,4 @@ class MemberTest extends Specification with DataTables { def is =
     }
   }
 
-  def e16 = Member.Status(0) must equalTo(Member.Normal)
-  def e17 = Member.Status(1) must equalTo(Member.Deleted)
-
-  def e18 =
-    "in" | "result"         |
-    2    ! Member.Undefined |
-    99   ! Member.Undefined |
-    -1   ! Member.Undefined |> {
-      (in, result) => Member.Status(in) must equalTo(result)
-    }
-
-  def e19 = Member.Status.unapply(Member.Normal) must equalTo(0.some)
-  def e20 = Member.Status.unapply(Member.Deleted) must equalTo(1.some)
-  def e21 = Member.Status.unapply(Member.Undefined) must beNone
-  def e22 = {
-    val Member.Status(i) = Member.Normal
-    i must equalTo(0)
-  }
 }
