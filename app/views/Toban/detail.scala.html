@@ -1,6 +1,7 @@
 @(task: org.nisshiee.toban.model.Task, date: org.scala_tools.time.Imports.LocalDate, tobanOpt: Option[org.nisshiee.toban.model.Toban], members: Seq[org.nisshiee.toban.model.Member])
 
 @import org.nisshiee.toban.controller._
+@import org.nisshiee.toban.model._
 @import scalaz._, Scalaz._
 
 @main("[to-ban] toban detail") {
@@ -12,7 +13,19 @@
 @tobanOpt match {
 
   case Some(toban) => {
-    <p style="margin-top:9px;"><span class="label label-info" style="font-size:24px;">@toban.member.shows</span></p>
+    @defining(toban.member.status) { status =>
+      @status match {
+        case Member.Normal => {
+          <p style="margin-top:9px;"><span class="label label-info" style="font-size:24px;">@toban.member.shows</span></p>
+        }
+        case Member.Deleted => {
+          <p style="margin-top:9px;"><span class="label label-inverse" style="font-size:24px;">@toban.member.shows</span></p>
+        }
+        case Member.Undefined => {
+          <p style="margin-top:9px;"><span class="label label-important" style="font-size:24px;">@toban.member.shows</span></p>
+        }
+      }
+    }
   }
 
   case None => {
