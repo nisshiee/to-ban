@@ -25,6 +25,10 @@ class MemberControllerTest extends Specification { def is =
   "delete"                                                                      ^
     "存在しないIDをリクエストした場合、indexにリダイレクト"                     ! e6^
     "存在するタスクをリクエストすると、そのタスクのdetailにリダイレクト"        ! e7^
+                                                                                p^
+  "update"                                                                      ^
+    "存在しないIDをリクエストした場合、indexにリダイレクト"                     ! e8^
+    "存在するタスクをリクエストすると、そのタスクのdetailにリダイレクト"        ! e9^
                                                                                 end
 
   def e1 = {
@@ -104,6 +108,50 @@ class MemberControllerTest extends Specification { def is =
           ,Map(MemberController.memberIdKey -> Seq(memberId.toString))
         )
         MemberController.delete(request)
+      }
+    }
+
+    val checkOpt = for {
+      result <- resultOpt
+      rlocation <- redirectLocation(result)
+    } yield rlocation startsWith "/member/detail"
+    checkOpt must beSome.which(identity)
+  }
+
+  def e8 = {
+    val result = running(FakeApplication()) {
+      val request = new FakeRequest(
+        "POST"
+        ,routes.MemberController.update.toString
+        ,FakeHeaders()
+        ,Map(
+           MemberController.memberIdKey -> Seq("1")
+          ,MemberController.memberNameKey -> Seq("newmembername")
+        )
+      )
+      MemberController.update(request)
+    }
+    redirectLocation(result) must beSome.which("/member" ==)
+  }
+
+  def e9 = {
+    val newName = "newmembername"
+    val resultOpt = running(FakeApplication()) {
+      val memberIdOpt = DB.withConnection { implicit c =>
+        Member.create("testmember") ∘ (_.id)
+      }
+
+      memberIdOpt map { memberId =>
+        val request = new FakeRequest(
+          "POST"
+          ,routes.MemberController.update.toString
+          ,FakeHeaders()
+          ,Map(
+             MemberController.memberIdKey -> Seq(memberId.toString)
+            ,MemberController.memberNameKey -> Seq(newName)
+          )
+        )
+        MemberController.update(request)
       }
     }
 

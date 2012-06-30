@@ -66,4 +66,23 @@ object MemberController extends Controller {
     }
   }
 
+  def update = Action(parse.urlFormEncoded) { implicit req =>
+
+    val resultOpt: Option[Result] = for {
+      memberId <- req.body.get(memberIdKey) >>= {
+        case Seq(s) => s.parseInt.toOption
+        case _ => none
+      }
+      newName <- req.body.get(memberNameKey) >>= {
+        case Seq(s) => s.some
+        case _ => none
+      }
+      _ <- DB.withTransaction { implicit c =>
+        Member.update(memberId, newName)
+      }
+      result = Redirect(routes.MemberController.detail(memberId))
+    } yield result
+
+    resultOpt | Redirect(routes.MemberController.index)
+  }
 }

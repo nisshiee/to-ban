@@ -51,6 +51,16 @@ object Member {
         case _ => InvalidStatus(member.status).fail
       }
     } yield deleted
+
+  def update(id: Int, name: String)(implicit c: Connection) =
+    updateSql.on(
+       'id -> id
+      ,'name -> name
+    ).executeUpdate() match {
+      case 1 => find(id)
+      case 0 => none
+      case _ => sys.error("updated record must less than 2")
+    }
 }
 
 trait Members {
