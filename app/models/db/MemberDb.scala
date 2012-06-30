@@ -5,8 +5,8 @@ import org.nisshiee.toban.model._
 
 object MemberDb {
 
-  val parser: RowParser[Member] = int("id") ~ str("name") map {
-    case id ~ name => Member(id, name)
+  val parser: RowParser[Member] = int("id") ~ str("name") ~ int("status") map {
+    case id ~ name ~ s => Member(id, name, Member.Status(s))
   }
 
   val createSql = SQL("""
@@ -19,17 +19,41 @@ INSERT INTO member
 
   val allSql = SQL("""
 SELECT
-    id, name
+    id, name, status
   FROM
     member
-""")
+  WHERE
+    status = {status}
+""").on {
+    val Member.Status(i) = Member.Normal
+    'status -> i
+  }
 
   val findSql = SQL("""
 SELECT
-    id, name
+    id, name, status
   FROM
     member
   WHERE
     id = {id}
 """)
+
+  val deleteSql = {
+    val (Member.Status(deleted), Member.Status(normal)) =
+      (Member.Deleted, Member.Normal)
+
+    SQL("""
+UPDATE
+    member
+  SET
+    status = {deleted}
+  WHERE
+    id = {id}
+    AND status = {normal}
+""").on(
+       'deleted -> deleted
+      ,'normal -> normal
+    )
+  }
+
 }
