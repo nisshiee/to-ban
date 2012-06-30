@@ -5,13 +5,16 @@ import play.api.mvc._
 import play.api.db._
 import play.api.Play.current
 
-import scalaz._, Scalaz._
+import scalaz._, Scalaz._, Validation.Monad._
 
 import org.nisshiee.toban.model._
+import Member.{ Status, Normal, Deleted, Undefined }
+import Member.{ DeleteError, NoMember, InvalidStatus }
 
 object MemberController extends Controller {
 
   val memberNameKey = "member_name"
+  val memberIdKey = "member_id"
 
   def index = Action {
 
@@ -41,6 +44,26 @@ object MemberController extends Controller {
       case Member(id, _, _) => Redirect(routes.MemberController.detail(id))
     }
     resultOpt | Redirect(routes.MemberController.index)
+  }
+
+  def delete = Action(parse.urlFormEncoded) { implicit req =>
+
+    val resultVld: Validation[DeleteError, Result] =
+      DB.withTransaction { implicit c =>
+        for {
+          memberId <- req.body.get(memberIdKey).toSuccess[DeleteError](NoMember) >>= {
+            case Seq(s) => s.parseInt.fail.map(_ => NoMember).validation
+            case _ => NoMember.fail
+          }
+          deleted <- Member.delete(memberId)
+          result <- Redirect(routes.MemberController.detail(memberId)).success
+        } yield result
+      }
+
+    resultVld ||| {
+      case NoMember => Redirect(routes.MemberController.index)
+      case InvalidStatus(Status(id)) => Redirect(routes.MemberController.detail(id))
+    }
   }
 
 }

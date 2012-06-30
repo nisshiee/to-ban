@@ -14,6 +14,7 @@ POST    /task/create                org.nisshiee.toban.controller.TaskController
 GET     /member                     org.nisshiee.toban.controller.MemberController.index
 GET     /member/detail/:id          org.nisshiee.toban.controller.MemberController.detail(id: Int)
 POST    /member/create              org.nisshiee.toban.controller.MemberController.create
+POST    /member/delete              org.nisshiee.toban.controller.MemberController.delete
 
 # Toban
 GET     /toban/:taskId              org.nisshiee.toban.controller.TobanController.todayDetail(taskId: Int)
