@@ -50,6 +50,10 @@ delete→既にstatusがNormalでないのでInvalidStatusが返る"""          
       "statusがNormalでないmemberに対するdeleteはInvalidStatusがFailureで返る"  ! e17^
       """statusがNormalであるmemberに対するdeleteは
 statusが更新されたMemberがSuccessで返る"""                                      ! e18^
+                                                                                p^
+    "updateのテスト"                                                            ^
+      "存在しないIDに対するupdateはNoneが返る"                                  ! e19^
+      "updateに成功するとはSome[Member]が返る"                                  ! e20^
                                                                                 end
 
   def e1 = Member(1, "test-member", Member.Normal).shows must_== "test-member"
@@ -195,6 +199,28 @@ statusが更新されたMemberがSuccessで返る"""                            
       } yield after
     } must beSome.which { m =>
       m.status == Member.Deleted
+    }
+  }
+
+  def e19 = running(FakeApplication()) {
+
+    DB.withConnection { implicit c =>
+      Member.update(1, "updatedmember")
+    } must beNone
+  }
+
+  def e20 = running(FakeApplication()) {
+
+    val newname = "updatedmember"
+
+    DB.withConnection { implicit c =>
+      for {
+        before <- Member.create("testmember")
+        id = before.id
+        after <- Member.update(id, newname)
+      } yield after
+    } must beSome.which { m =>
+      m.name == newname
     }
   }
 }

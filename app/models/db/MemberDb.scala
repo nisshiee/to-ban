@@ -56,4 +56,12 @@ UPDATE
     )
   }
 
+  val updateSql = SQL("""
+UPDATE
+    member
+  SET
+    name = {name}
+  WHERE
+    id = {id}
+""")
 }
