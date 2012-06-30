@@ -1,6 +1,6 @@
 package org.nisshiee.toban.model
 
-import scalaz._, Scalaz._
+import scalaz._, Scalaz._, Validation.Monad._
 import java.sql.Connection
 
 import org.nisshiee.toban.model.db.MemberDb._
@@ -29,6 +29,10 @@ object Member {
     }
   }
 
+  sealed trait DeleteError
+  case object NoMember extends DeleteError
+  case class InvalidStatus(s: Status) extends DeleteError
+
   def all(implicit c: Connection) = allSql.list(parser)
 
   def create(name: String)(implicit c: Connection) =
@@ -41,10 +45,10 @@ object Member {
 
   def delete(id: Int)(implicit c: Connection) =
     for {
-      member <- Member.find(id)
+      member <- Member.find(id).toSuccess(NoMember)
       deleted <- deleteSql.on('id -> id).executeUpdate() match {
-        case 1 => Member(id, member.name, Member.Deleted).some
-        case _ => none
+        case 1 => Member(id, member.name, Member.Deleted).success
+        case _ => InvalidStatus(member.status).fail
       }
     } yield deleted
 }

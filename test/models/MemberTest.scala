@@ -4,7 +4,7 @@ import org.specs2._, matcher.DataTables
 import play.api.test._, Helpers._
 import play.api.Play.current
 
-import scalaz._, Scalaz._
+import scalaz._, Scalaz._, Validation.Monad._
 import play.api.db._
 
 class MemberTest extends Specification { def is =
@@ -43,13 +43,13 @@ class MemberTest extends Specification { def is =
 find→createしたmemberがSome[Member]で返る
 delete→deleteに成功し、statusが更新されたmemberがSome[Member]で返る
 find→statusがDeletedになったmemberがSome[Member]で返る
-delete→既にstatusがNormalでないのでNoneが返る"""                               ! e15^
+delete→既にstatusがNormalでないのでInvalidStatusが返る"""                      ! e15^
                                                                                 p^
     "deleteのテスト"                                                            ^
-      "存在しないIDに対するdeleteはNoneが返る"                                  ! e16^
-      "statusがNormalでないmemberに対するdeleteはNoneが返る"                    ! e17^
+      "存在しないIDに対するdeleteはNoMemberがFailureで返る"                     ! e16^
+      "statusがNormalでないmemberに対するdeleteはInvalidStatusがFailureで返る"  ! e17^
       """statusがNormalであるmemberに対するdeleteは
-statusが更新されたMember.someが返る"""                                         ! e18^
+statusが更新されたMemberがSuccessで返る"""                                      ! e18^
                                                                                 end
 
   def e1 = Member(1, "test-member", Member.Normal).shows must_== "test-member"
@@ -153,9 +153,9 @@ statusが更新されたMember.someが返る"""                                 
       val validation = for {
         m1 <- Member.create("testmember")
         m2 <- Member.find(m1.id)
-        m3 <- Member.delete(m1.id)
+        m3 <- Member.delete(m1.id).toOption
         m4 <- Member.find(m1.id)
-        m5Opt = Member.delete(m1.id)
+        m5Vld = Member.delete(m1.id)
       } yield (
         (m1.id ≟ m2.id) &&
         (m1.name ≟ m2.name) &&
@@ -164,7 +164,7 @@ statusが更新されたMember.someが返る"""                                 
         (m3.status == Member.Deleted) &&
         (m1.id ≟ m4.id) &&
         (m4.status == Member.Deleted) &&
-        (m5Opt >>=| false.some | true)
+        (m5Vld == Member.InvalidStatus(Member.Deleted).fail[Member])
       )
       validation must beSome.which(identity)
     }
@@ -172,7 +172,7 @@ statusが更新されたMember.someが返る"""                                 
 
   def e16 = running(FakeApplication()) {
     DB.withConnection { implicit c =>
-      Member.delete(1) must beNone
+      Member.delete(1) must equalTo(Member.NoMember.fail[Member])
     }
   }
 
@@ -181,8 +181,8 @@ statusが更新されたMember.someが返る"""                                 
       for {
         member <- Member.create("testmember")
         id = member.id
-        _ <- Member.delete(id)
-      } yield Member.delete(id) == None
+        _ <- Member.delete(id).toOption
+      } yield Member.delete(id) == Member.InvalidStatus(Member.Deleted).fail[Member]
     } must beSome.which(identity)
   }
 
@@ -191,7 +191,7 @@ statusが更新されたMember.someが返る"""                                 
       for {
         before <- Member.create("testmember")
         id = before.id
-        after <- Member.delete(id)
+        after <- Member.delete(id).toOption
       } yield after
     } must beSome.which { m =>
       m.status == Member.Deleted
