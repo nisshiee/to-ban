@@ -76,4 +76,35 @@ trait Members {
     case Member.Deleted => "deleted"
     case Member.Undefined => "-"
   }
+
+  import play.api.libs.json._, Json._
+
+  implicit lazy val MemberStatusWrites = new Writes[Member.Status] {
+    def writes(status: Member.Status) = status match {
+      case Member.Status(i) => toJson(i)
+    }
+  }
+
+  implicit lazy val MemberStatusReads = new Reads[Member.Status] {
+    def reads(js: JsValue) = js.as[Int] |> Member.Status.apply
+  }
+
+  implicit lazy val MemberWrites = new Writes[Member] {
+    def writes(member: Member) = toJson(
+      Map(
+         "id" -> toJson(member.id)
+        ,"name" -> toJson(member.name)
+        ,"status" -> toJson(member.status)
+      )
+    )
+  }
+
+  implicit lazy val MemberReads = new Reads[Member] {
+    def reads(js: JsValue) =
+      Member(
+         (js \ "id").as[Int]
+        ,(js \ "name").as[String]
+        ,(js \ "status").as[Member.Status]
+      )
+  }
 }
