@@ -26,4 +26,23 @@ trait Tasks {
   }
 
   implicit lazy val TaskEqual = equalBy[Task, Int](_.id)
+
+  import play.api.libs.json._, Json._
+
+  implicit lazy val TaskWrites = new Writes[Task] {
+    def writes(task: Task) = toJson(
+      Map(
+         "id" -> toJson(task.id)
+        ,"name" -> toJson(task.name)
+      )
+    )
+  }
+
+  implicit lazy val TaskReads = new Reads[Task] {
+    def reads(js: JsValue) =
+      Task(
+         (js \ "id").as[Int]
+        ,(js \ "name").as[String]
+      )
+  }
 }
