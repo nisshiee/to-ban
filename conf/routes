@@ -31,3 +31,4 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # API
 GET     /api/task/getAll            org.nisshiee.toban.controller.api.TaskController.getAll
+GET     /api/member/getAll          org.nisshiee.toban.controller.api.MemberController.getAll
