@@ -56,4 +56,12 @@ UPDATE
     task_id = {taskId}
     AND date = {date}
 """)
+
+  val deleteSql = SQL("""
+DELETE
+    toban
+  WHERE
+    task_id = {taskId}
+    AND date = {date}
+""")
 }
