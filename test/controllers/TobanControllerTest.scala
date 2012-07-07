@@ -10,22 +10,28 @@ import org.nisshiee.toban.model._
 
 class TobanControllerTest extends Specification { def is =
 
-  "todayDetail"                                                                 ^
-    "存在しないタスクIDをリクエストした場合、/taskにリダイレクト"               ! e1^
-    "存在するタスクIDをリクエストした場合、OKを返す"                            ! e2^
-                                                                                p^
-  "detail"                                                                      ^
-    "存在しないタスクIDをリクエストした場合、/taskにリダイレクト"               ! e3^
-    "存在するタスクIDをリクエストした場合、OKを返す"                            ! e4^
-    "不正な日付をリクエストした場合、/taskにリダイレクト"                       ! e5^
-                                                                                p^
-  "assign"                                                                      ^
-    "存在しないタスクIDをリクエストした場合、/taskにリダイレクト"               ! e6^
-    "存在しないメンバーIDをリクエストした場合、元の/toban/detailにリダイレクト" ! e7^
-    "不正な日付をリクエストした場合、/taskにリダイレクト"                       ! e8^
-    "成功したら/week/<対象日>にリダイレクト"                                    ! e9^
-    "メンバーが選択されていない場合、元の/toban/detailにリダイレクト"           ! e10^
-                                                                                end
+  "todayDetail"                                                                                     ^
+    "存在しないタスクIDをリクエストした場合、/taskにリダイレクト"                                   ! e1^
+    "存在するタスクIDをリクエストした場合、OKを返す"                                                ! e2^
+                                                                                                    p^
+  "detail"                                                                                          ^
+    "存在しないタスクIDをリクエストした場合、/taskにリダイレクト"                                   ! e3^
+    "存在するタスクIDをリクエストした場合、OKを返す"                                                ! e4^
+    "不正な日付をリクエストした場合、/taskにリダイレクト"                                           ! e5^
+                                                                                                    p^
+  "assign"                                                                                          ^
+    "存在しないタスクIDをリクエストした場合、/taskにリダイレクト"                                   ! e6^
+    "存在しないメンバーIDをリクエストした場合、元の/toban/detailにリダイレクト"                     ! e7^
+    "不正な日付をリクエストした場合、/taskにリダイレクト"                                           ! e8^
+    "成功したら/week/<対象日>にリダイレクト"                                                        ! e9^
+    "メンバーが選択されていない場合、元の/toban/detailにリダイレクト"                               ! e10^
+                                                                                                    p^
+  "unassign"                                                                                        ^
+    "不正な日付をリクエストした場合、/にリダイレクト"                                               ! e11^
+    "存在しないタスクIDをリクエストした場合、/week/<対象日>にリダイレクト"                          ! e12^
+    "未アサインなタスク、日付をリクエストした場合、/week/<対象日>にリダイレクト"                    ! e13^
+    "成功したら/week/<対象日>にリダイレクト"                                                        ! e14^
+                                                                                                    end
 
   def e1 = {
     val result = running(FakeApplication()) {
@@ -184,5 +190,91 @@ class TobanControllerTest extends Specification { def is =
 
     val expected = "/toban/" + taskId + "/" + dateStr
     redirectLocation(result) must beSome.which(expected ==)
+  }
+
+  def e11 = {
+    val dateStr = "2012-01-50"
+    val result = running(FakeApplication()) {
+      val request = new FakeRequest(
+        "POST"
+        ,routes.TobanController.unassign.toString
+        ,FakeHeaders()
+        ,Map(
+          TobanController.taskIdKey -> Seq("1")
+          ,TobanController.dateKey -> Seq(dateStr)
+        )
+      )
+      TobanController.unassign(request)
+    }
+    redirectLocation(result) must beSome.which("/" ==)
+  }
+
+  def e12 = {
+    val dateStr = "2012-01-01"
+    val result = running(FakeApplication()) {
+      val request = new FakeRequest(
+        "POST"
+        ,routes.TobanController.unassign.toString
+        ,FakeHeaders()
+        ,Map(
+          TobanController.taskIdKey -> Seq("1")
+          ,TobanController.dateKey -> Seq(dateStr)
+        )
+      )
+      TobanController.unassign(request)
+    }
+    val expected = "/week/" + dateStr
+    redirectLocation(result) must beSome.which(expected ==)
+  }
+
+  def e13 = {
+    val dateStr = "2012-01-01"
+    val resultOpt = running(FakeApplication()) {
+      for {
+        task <- DB.withTransaction { implicit c => Task.create("testtask") }
+        request = new FakeRequest(
+          "POST"
+          ,routes.TobanController.unassign.toString
+          ,FakeHeaders()
+          ,Map(
+            TobanController.taskIdKey -> Seq(task.id.toString)
+            ,TobanController.dateKey -> Seq(dateStr)
+          )
+        )
+      } yield TobanController.unassign(request)
+    }
+    resultOpt must beSome.like {
+      case result => {
+        val expected = "/week/" + dateStr
+        redirectLocation(result) must beSome.which(expected ==)
+      }
+    }
+  }
+
+  def e14 = {
+    val dateStr = "2012-01-01"
+    val date = new LocalDate(dateStr)
+    val resultOpt = running(FakeApplication()) {
+      for {
+        task <- DB.withTransaction { implicit c => Task.create("testtask") }
+        member <- DB.withTransaction { implicit c => Member.create("testmember") }
+        _ <- DB.withTransaction { implicit c => Toban.replace(task.id, date, member.id).toOption }
+        request = new FakeRequest(
+          "POST"
+          ,routes.TobanController.unassign.toString
+          ,FakeHeaders()
+          ,Map(
+            TobanController.taskIdKey -> Seq(task.id.toString)
+            ,TobanController.dateKey -> Seq(dateStr)
+          )
+        )
+      } yield TobanController.unassign(request)
+    }
+    resultOpt must beSome.like {
+      case result => {
+        val expected = "/week/" + dateStr
+        redirectLocation(result) must beSome.which(expected ==)
+      }
+    }
   }
 }

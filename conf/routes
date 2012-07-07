@@ -21,6 +21,7 @@ POST    /member/update              org.nisshiee.toban.controller.MemberControll
 GET     /toban/:taskId              org.nisshiee.toban.controller.TobanController.todayDetail(taskId: Int)
 GET     /toban/:taskId/$dateStr<\d{4}-\d{2}-\d{2}>          org.nisshiee.toban.controller.TobanController.detail(taskId: Int, dateStr: String)
 POST    /toban/assign               org.nisshiee.toban.controller.TobanController.assign
+POST    /toban/unassign             org.nisshiee.toban.controller.TobanController.unassign
 
 GET     /week                       org.nisshiee.toban.controller.TableController.index
 GET     /week/$dateStr<\d{4}-\d{2}-\d{2}>                   org.nisshiee.toban.controller.TableController.week(dateStr: String)
