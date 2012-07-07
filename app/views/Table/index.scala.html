@@ -51,7 +51,19 @@
           @defining(assignments.get(d -> t)) { memberOpt =>
             @memberOpt match {
               case Some(m) => {
-                <td><a class="btn btn-info" href="@routes.TobanController.detail(t.id, d.shows)">@m.shows</a></td>
+                @defining(m.status) { status =>
+                  @status match {
+                    case Member.Normal => {
+                      <td><a class="btn btn-info" href="@routes.TobanController.detail(t.id, d.shows)">@m.shows</a></td>
+                    }
+                    case Member.Deleted => {
+                      <td><a class="btn btn-inverse" href="@routes.TobanController.detail(t.id, d.shows)">@m.shows</a></td>
+                    }
+                    case Member.Undefined => {
+                      <td><a class="btn btn-danger" href="@routes.TobanController.detail(t.id, d.shows)">@m.shows</a></td>
+                    }
+                  }
+                }
               }
               case None => {
                 <td><a class="btn" href="@routes.TobanController.detail(t.id, d.shows)">assign</a></td>

@@ -1,6 +1,8 @@
 @(member: org.nisshiee.toban.model.Member)
 
 @import org.nisshiee.toban.controller._
+@import org.nisshiee.toban.model._
+@import scalaz._, Scalaz._
 
 @main("[to-ban] member detail") {
 
@@ -16,7 +18,29 @@
       <th>name</th>
       <td>@member.name</td>
     </tr>
+    <tr>
+      <th>status</th>
+      <td>@member.status.shows</td>
+    </tr>
   </tbody>
 </table>
+
+<div class="well">
+  <h3>edit member name</h3>
+  <form class="form-horizontal" action="@routes.MemberController.update" method="post">
+    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
+    <input type="text" required name="@MemberController.memberNameKey" value="@member.name">
+    <input class="btn btn-primary" type="submit" value="update">
+  </form>
+
+  <hr>
+
+  <h3>delete member</h3>
+  <form class="form-horizontal" action="@routes.MemberController.delete" method="post">
+    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
+    <input class="btn btn-danger" type="submit" value="delete">
+  </form>
+</div>
+
 
 }

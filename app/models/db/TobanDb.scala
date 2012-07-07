@@ -10,9 +10,14 @@ object TobanDb {
     str("task.name") ~
     date("toban.date") ~
     int("member.id") ~
-    str("member.name") map {
-      case taskId ~ taskName ~ date ~ memberId ~ memberName =>
-        Toban(Task(taskId, taskName), date.toLocalDate, Member(memberId, memberName))
+    str("member.name") ~
+    int("member.status") map {
+      case taskId ~ taskName ~ date ~ memberId ~ memberName ~ s =>
+        Toban(
+           Task(taskId, taskName)
+          ,date.toLocalDate
+          ,Member(memberId, memberName, Member.Status(s))
+        )
     }
 
   val findSql = SQL("""
@@ -22,6 +27,7 @@ SELECT
     ,toban.date
     ,member.id
     ,member.name
+    ,member.status
   FROM
     toban
     ,task
@@ -46,6 +52,14 @@ UPDATE
     toban
   SET
     member_id = {memberId}
+  WHERE
+    task_id = {taskId}
+    AND date = {date}
+""")
+
+  val deleteSql = SQL("""
+DELETE
+    toban
   WHERE
     task_id = {taskId}
     AND date = {date}

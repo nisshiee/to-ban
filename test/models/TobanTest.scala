@@ -23,6 +23,14 @@ class TobanTest extends Specification { def is =
       "replace→findのテスト"                                                   ^
         "新規create後、そのレコードをfindできる"                                ! e6^
         "update後、そのレコードをfindすると更新後のTobanを取得"                 ! e7^
+                                                                                p^
+      "deleteのテスト"                                                          ^
+        "存在しないTaskを指定した場合はfalseが返る"                             ! e8^
+        "Task, Dateが一致するレコードがなければfalseが返る"                     ! e9^
+        "Task, Dateが一致するレコードがあればDeleteされ、trueが返る"            ! e10^
+                                                                                p^
+      "delete→findのテスト"                                                    ^
+        "delete後、そのレコードをfindするとNoneが返る"                          ! e11^
                                                                                 end
 
   def e1 = running(FakeApplication()) {
@@ -111,4 +119,52 @@ class TobanTest extends Specification { def is =
       checkResult must beSome.which(identity)
     }
   }
+
+  def e8 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      val today = LocalDate.today
+      Toban.delete(1, today) must beFalse
+    }
+  }
+
+  def e9 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      val today = LocalDate.today
+      val resultOpt = for {
+        task <- Task.create("testtask")
+        result = Toban.delete(task.id, today)
+      } yield result
+      resultOpt must beSome.which(false ==)
+    }
+  }
+
+  def e10 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      val today = LocalDate.today
+      val resultOpt = for {
+        task <- Task.create("testtask")
+        member <- Member.create("testmember")
+        toban <- Toban.replace(task.id, today, member.id).toOption
+        result = Toban.delete(task.id, today)
+      } yield result
+      resultOpt must beSome.which(true ==)
+    }
+  }
+
+  def e11 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      val today = LocalDate.today
+      val resultOpt = for {
+        task <- Task.create("testtask")
+        member <- Member.create("testmember")
+        toban <- Toban.replace(task.id, today, member.id).toOption
+        _ = Toban.delete(task.id, today)
+        result = Toban.find(task.id, today)
+      } yield result
+      resultOpt must beSome.like {
+        case r => r must beNone
+      }
+    }
+  }
+
 }

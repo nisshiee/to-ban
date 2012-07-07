@@ -43,5 +43,15 @@ object Toban {
         }
       }
     } yield toban
+
+  def delete(taskId: Int, date: LocalDate)(implicit c: Connection) =
+    deleteSql.on(
+       'taskId -> taskId
+      ,'date -> date.toDate
+    ).executeUpdate() match {
+      case 1 => true
+      case 0 => false
+      case _ => throw new Exception("DB ERROR")
+    }
 }
 

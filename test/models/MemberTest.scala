@@ -1,10 +1,10 @@
 package org.nisshiee.toban.model
 
-import org.specs2._
+import org.specs2._, matcher.DataTables
 import play.api.test._, Helpers._
 import play.api.Play.current
 
-import scalaz._, Scalaz._
+import scalaz._, Scalaz._, Validation.Monad._
 import play.api.db._
 
 class MemberTest extends Specification { def is =
@@ -38,18 +38,36 @@ class MemberTest extends Specification { def is =
     "findのテスト"                                                              ^
       "存在しないIDに対するfindはNoneが返る"                                    ! e14^
                                                                                 p^
-    "create→findのテスト"                                                      ^
-      "1回createし、そのIDでfindすると対象レコードがSome[Member]で返る"         ! e15^
+    "create→find→delete→find→deleteのテスト"                                ^
+      """create→成功
+find→createしたmemberがSome[Member]で返る
+delete→deleteに成功し、statusが更新されたmemberがSome[Member]で返る
+find→statusがDeletedになったmemberがSome[Member]で返る
+delete→既にstatusがNormalでないのでInvalidStatusが返る"""                      ! e15^
+                                                                                p^
+    "deleteのテスト"                                                            ^
+      "存在しないIDに対するdeleteはNoMemberがFailureで返る"                     ! e16^
+      "statusがNormalでないmemberに対するdeleteはInvalidStatusがFailureで返る"  ! e17^
+      """statusがNormalであるmemberに対するdeleteは
+statusが更新されたMemberがSuccessで返る"""                                      ! e18^
+                                                                                p^
+    "updateのテスト"                                                            ^
+      "存在しないIDに対するupdateはNoneが返る"                                  ! e19^
+      "updateに成功するとはSome[Member]が返る"                                  ! e20^
                                                                                 end
 
-  def e1 = Member(1, "test-member").shows must_== "test-member"
-  def e2 = Member(1, "テストメンバ").shows must_== "テストメンバ"
-  def e3 = Member(1, null).shows must_== ""
+  def e1 = Member(1, "test-member", Member.Normal).shows must_== "test-member"
+  def e2 = Member(1, "テストメンバ", Member.Normal).shows must_== "テストメンバ"
+  def e3 = Member(1, null, Member.Normal).shows must_== ""
 
-  def e4 = Member(1, "test-member") ≟ Member(1, "test-member") must beTrue
-  def e5 = Member(1, "test-member") ≟ Member(1, "other-member") must beTrue
-  def e6 = Member(1, "test-member") ≟ Member(2, "other-member") must beFalse
-  def e7 = Member(1, "test-member") ≟ Member(2, "test-member") must beFalse
+  def e4 =
+    Member(1, "test-member", Member.Normal) ≟ Member(1, "test-member", Member.Normal) must beTrue
+  def e5 =
+    Member(1, "test-member", Member.Normal) ≟ Member(1, "other-member", Member.Normal) must beTrue
+  def e6 =
+    Member(1, "test-member", Member.Normal) ≟ Member(2, "other-member", Member.Normal) must beFalse
+  def e7 =
+    Member(1, "test-member", Member.Normal) ≟ Member(2, "test-member", Member.Normal) must beFalse
   
   def e8 = running(FakeApplication()) {
     DB.withTransaction { implicit c =>
@@ -90,7 +108,7 @@ class MemberTest extends Specification { def is =
 
       val spec1 = all must have size(1)
       val spec2 = all ∘ {
-        case m @ Member(_, n) => (n ≟ name) && (m.some ≟ createResult)
+        case m @ Member(_, n, _) => (n ≟ name) && (m.some ≟ createResult)
       } must_== List(true)
 
       spec1 and spec2
@@ -121,7 +139,7 @@ class MemberTest extends Specification { def is =
 
       val spec1 = all must have size(1)
       val spec2 = all ∘ {
-        case m @ Member(_, n) => (n ≟ name) && (m.some ≟ createResult)
+        case m @ Member(_, n, _) => (n ≟ name) && (m.some ≟ createResult)
       } must_== List(true)
 
       spec1 and spec2
@@ -137,10 +155,72 @@ class MemberTest extends Specification { def is =
   def e15 = running(FakeApplication()) {
     DB.withTransaction { implicit c =>
       val validation = for {
-        t <- Member.create("testtask")
-        found <- Member.find(t.id)
-      } yield ((t.id ≟ found.id) && (t.name ≟ found.name))
+        m1 <- Member.create("testmember")
+        m2 <- Member.find(m1.id)
+        m3 <- Member.delete(m1.id).toOption
+        m4 <- Member.find(m1.id)
+        m5Vld = Member.delete(m1.id)
+      } yield (
+        (m1.id ≟ m2.id) &&
+        (m1.name ≟ m2.name) &&
+        (m2.status == Member.Normal) &&
+        (m1.id ≟ m3.id) &&
+        (m3.status == Member.Deleted) &&
+        (m1.id ≟ m4.id) &&
+        (m4.status == Member.Deleted) &&
+        (m5Vld == Member.InvalidStatus(Member.Deleted).fail[Member])
+      )
       validation must beSome.which(identity)
+    }
+  }
+
+  def e16 = running(FakeApplication()) {
+    DB.withConnection { implicit c =>
+      Member.delete(1) must equalTo(Member.NoMember.fail[Member])
+    }
+  }
+
+  def e17 = running(FakeApplication()) {
+    DB.withConnection { implicit c =>
+      for {
+        member <- Member.create("testmember")
+        id = member.id
+        _ <- Member.delete(id).toOption
+      } yield Member.delete(id) == Member.InvalidStatus(Member.Deleted).fail[Member]
+    } must beSome.which(identity)
+  }
+
+  def e18 = running(FakeApplication()) {
+    DB.withConnection { implicit c =>
+      for {
+        before <- Member.create("testmember")
+        id = before.id
+        after <- Member.delete(id).toOption
+      } yield after
+    } must beSome.which { m =>
+      m.status == Member.Deleted
+    }
+  }
+
+  def e19 = running(FakeApplication()) {
+
+    DB.withConnection { implicit c =>
+      Member.update(1, "updatedmember")
+    } must beNone
+  }
+
+  def e20 = running(FakeApplication()) {
+
+    val newname = "updatedmember"
+
+    DB.withConnection { implicit c =>
+      for {
+        before <- Member.create("testmember")
+        id = before.id
+        after <- Member.update(id, newname)
+      } yield after
+    } must beSome.which { m =>
+      m.name == newname
     }
   }
 }
