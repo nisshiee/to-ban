@@ -7,6 +7,7 @@ package object model
      with Tasks
      with Times
      with LocalDates
+     with Tobans
 {
 
 }

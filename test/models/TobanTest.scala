@@ -31,6 +31,13 @@ class TobanTest extends Specification { def is =
                                                                                 p^
       "delete→findのテスト"                                                    ^
         "delete後、そのレコードをfindするとNoneが返る"                          ! e11^
+                                                                                p^
+                                                                                p^
+    "TobanEqualのテスト"                                                        ^
+      "taskとdateが一致していればtrue(memberも一致)"                            ! e12^
+      "taskとdateが一致していればtrue(memberは異なる)"                          ! e13^
+      "taskが異なる場合はfalse"                                                 ! e14^
+      "dateが異なる場合はfalse"                                                 ! e15^
                                                                                 end
 
   def e1 = running(FakeApplication()) {
@@ -167,4 +174,63 @@ class TobanTest extends Specification { def is =
     }
   }
 
+  def e12 = {
+    val t1 = Toban(
+       Task(1, "testtask")
+      ,new LocalDate("2012-01-01")
+      ,Member(2, "testmember", Member.Normal)
+    )
+    val t2 = Toban(
+       Task(1, "testtask")
+      ,new LocalDate("2012-01-01")
+      ,Member(2, "testmember", Member.Normal)
+    )
+
+    (t1 ≟ t2) must beTrue
+  }
+
+  def e13 = {
+    val t1 = Toban(
+       Task(1, "testtask")
+      ,new LocalDate("2012-01-01")
+      ,Member(2, "testmember", Member.Normal)
+    )
+    val t2 = Toban(
+       Task(1, "testtask")
+      ,new LocalDate("2012-01-01")
+      ,Member(3, "testmember2", Member.Normal)
+    )
+
+    (t1 ≟ t2) must beTrue
+  }
+
+  def e14 = {
+    val t1 = Toban(
+       Task(1, "testtask")
+      ,new LocalDate("2012-01-01")
+      ,Member(2, "testmember", Member.Normal)
+    )
+    val t2 = Toban(
+       Task(4, "testtask2")
+      ,new LocalDate("2012-01-01")
+      ,Member(2, "testmember", Member.Normal)
+    )
+
+    (t1 ≟ t2) must beFalse
+  }
+
+  def e15 = {
+    val t1 = Toban(
+       Task(1, "testtask")
+      ,new LocalDate("2012-01-01")
+      ,Member(2, "testmember", Member.Normal)
+    )
+    val t2 = Toban(
+       Task(1, "testtask")
+      ,new LocalDate("2012-01-02")
+      ,Member(2, "testmember", Member.Normal)
+    )
+
+    (t1 ≟ t2) must beFalse
+  }
 }
