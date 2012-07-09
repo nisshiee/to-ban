@@ -55,3 +55,28 @@ object Toban {
     }
 }
 
+trait Tobans {
+
+  implicit lazy val TobanEqual = equalBy[Toban, (Task, LocalDate)] { t => (t.task, t.date) }
+
+  import play.api.libs.json._, Json._
+
+  implicit lazy val TobanWrites = new Writes[Toban] {
+    def writes(toban: Toban) = toJson(
+      Map(
+         "task" -> toJson(toban.task)
+        ,"date" -> toJson(toban.date)
+        ,"member" -> toJson(toban.member)
+      )
+    )
+  }
+
+  implicit lazy val TobanReads = new Reads[Toban] {
+    def reads(js: JsValue) = Toban(
+       (js \ "task").as[Task]
+      ,(js \ "date").as[LocalDate]
+      ,(js \ "member").as[Member]
+    )
+  }
+}
+
