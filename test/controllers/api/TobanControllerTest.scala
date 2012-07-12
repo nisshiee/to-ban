@@ -23,7 +23,7 @@ class TobanControllerTest extends Specification { def is =
 
   def e1 = {
     val result = running(FakeApplication()) {
-      TobanController.get(1, "2012-01-01")(FakeRequest())
+      TobanController.get(1, "2012-01-01", "")(FakeRequest())
     }
     val resultJs = parse(contentAsString(result))
 
@@ -42,7 +42,7 @@ class TobanControllerTest extends Specification { def is =
     }
     val resultOpt = for {
       toban <- expectedOpt
-      result = TobanController.get(toban.task.id, toban.date.toString)(FakeRequest())
+      result = TobanController.get(toban.task.id, toban.date.toString, "")(FakeRequest())
     } yield result
 
     resultOpt must beSome.like {
@@ -65,7 +65,7 @@ class TobanControllerTest extends Specification { def is =
     }
     val resultOpt = for {
       toban <- expectedOpt
-      result = TobanController.get(toban.task.id, "2012-02-30")(FakeRequest())
+      result = TobanController.get(toban.task.id, "2012-02-30", "")(FakeRequest())
     } yield result
 
     resultOpt must beSome.like {

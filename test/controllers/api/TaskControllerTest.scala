@@ -18,7 +18,7 @@ class TaskControllerTest extends Specification { def is =
 
   def e1 = {
     val result = running(FakeApplication()) {
-      TaskController.getAll(FakeRequest())
+      TaskController.getAll("")(FakeRequest())
     }
     val resultJs = parse(contentAsString(result))
 
@@ -33,7 +33,7 @@ class TaskControllerTest extends Specification { def is =
         t2 <- Task.create("testtask2")
       } yield List(t1, t2)
     }
-    val result = TaskController.getAll(FakeRequest())
+    val result = TaskController.getAll("")(FakeRequest())
     val resultJs = parse(contentAsString(result))
 
     (expectedOpt must beSome.which(_.size == 2)) and
