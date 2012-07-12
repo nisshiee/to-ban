@@ -30,6 +30,6 @@ GET     /week/$dateStr<\d{4}-\d{2}-\d{2}>                   org.nisshiee.toban.c
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # API
-GET     /api/task/getAll            org.nisshiee.toban.controller.api.TaskController.getAll
-GET     /api/member/getAll          org.nisshiee.toban.controller.api.MemberController.getAll
-GET     /api/toban/get/:taskId/$dateStr<\d{4}-\d{2}-\d{2}>              org.nisshiee.toban.controller.api.TobanController.get(taskId: Int, dateStr: String)
+GET     /api/task/getAll            org.nisshiee.toban.controller.api.TaskController.getAll(callback: String ?= "")
+GET     /api/member/getAll          org.nisshiee.toban.controller.api.MemberController.getAll(callback: String ?= "")
+GET     /api/toban/get/:taskId/$dateStr<\d{4}-\d{2}-\d{2}>              org.nisshiee.toban.controller.api.TobanController.get(taskId: Int, dateStr: String, callback: String ?= "")

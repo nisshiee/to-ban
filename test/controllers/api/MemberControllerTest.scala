@@ -18,7 +18,7 @@ class MemberControllerTest extends Specification { def is =
 
   def e1 = {
     val result = running(FakeApplication()) {
-      MemberController.getAll(FakeRequest())
+      MemberController.getAll("")(FakeRequest())
     }
     val resultJs = parse(contentAsString(result))
 
@@ -33,7 +33,7 @@ class MemberControllerTest extends Specification { def is =
         t2 <- Member.create("testmember2")
       } yield List(t1, t2)
     }
-    val result = MemberController.getAll(FakeRequest())
+    val result = MemberController.getAll("")(FakeRequest())
     val resultJs = parse(contentAsString(result))
 
     (expectedOpt must beSome.which(_.size == 2)) and
