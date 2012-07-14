@@ -40,6 +40,10 @@ class TaskTest extends Specification { def is =
                                                                                 p^
     "create→findのテスト"                                                      ^
       "1回createし、そのIDでfindすると対象レコードがSome[Task]で返る"           ! e15^
+                                                                                p^
+    "updateのテスト"                                                            ^
+      "存在しないIDに対するupdateはNoneが返る"                                  ! e16^
+      "updateに成功するとはSome[Task]が返る"                                    ! e17^
                                                                                 end
 
   def e1 = Task(1, "test-task").shows must_== "test-task"
@@ -140,6 +144,23 @@ class TaskTest extends Specification { def is =
         found <- Task.find(t.id)
       } yield ((t.id ≟ found.id) && (t.name ≟ found.name))
       validation must beSome.which(identity)
+    }
+  }
+
+  def e16 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      Task.update(1, "testtask")
+    } must beNone
+  }
+
+  def e17 = running(FakeApplication()) {
+    DB.withTransaction { implicit c =>
+      for {
+        task <- Task.create("testtask")
+        updated <- Task.update(task.id, "updated")
+      } yield updated
+    } must beSome.like {
+      case Task(_, name) => name must equalTo("updated")
     }
   }
 }

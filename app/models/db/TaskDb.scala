@@ -32,4 +32,13 @@ SELECT
   WHERE
     id = {id}
 """)
+
+  val updateSql = SQL("""
+UPDATE
+    task
+  SET
+    name = {name}
+  WHERE
+    id = {id}
+""")
 }
