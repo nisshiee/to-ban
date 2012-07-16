@@ -9,6 +9,7 @@ GET     /                           org.nisshiee.toban.controller.TableControlle
 GET     /task                       org.nisshiee.toban.controller.TaskController.index
 GET     /task/detail/:id            org.nisshiee.toban.controller.TaskController.detail(id: Int)
 POST    /task/create                org.nisshiee.toban.controller.TaskController.create
+POST    /task/update                org.nisshiee.toban.controller.TaskController.update
 
 # Member
 GET     /member                     org.nisshiee.toban.controller.MemberController.index

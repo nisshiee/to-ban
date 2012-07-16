@@ -17,6 +17,16 @@ object Task {
     }
 
   def find(id: Int)(implicit c: Connection) = findSql.on('id -> id).singleOpt(parser)
+
+  def update(id: Int, name: String)(implicit c: Connection) =
+    updateSql.on(
+       'id -> id
+      ,'name -> name
+    ).executeUpdate match {
+      case 1 => find(id)
+      case 0 => none
+      case _ => sys.error("updated record must less than 2")
+    }
 }
 
 trait Tasks {

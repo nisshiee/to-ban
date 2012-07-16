@@ -1,6 +1,8 @@
 @(task: org.nisshiee.toban.model.Task)
 
 @import org.nisshiee.toban.controller._
+@import org.nisshiee.toban.model._
+@import scalaz._, Scalaz._
 
 @main("[to-ban] task detail") {
 
@@ -18,5 +20,14 @@
     </tr>
   </tbody>
 </table>
+
+<div class="well">
+  <h3>edit task name</h3>
+  <form class="form-horizontal" action="@routes.TaskController.update" method="post">
+    <input type="hidden" name="@TaskController.taskIdKey" value="@task.id">
+    <input type="text" name="@TaskController.taskNameKey" value="@task.name">
+    <input class="btn btn-primary" type="submit" value="update">
+  </form>
+</div>
 
 }
