@@ -12,6 +12,7 @@ import org.nisshiee.toban.model._
 object TaskController extends Controller {
 
   val taskNameKey = "task_name"
+  val taskIdKey = "task_id"
 
   def index = Action {
 
@@ -43,4 +44,23 @@ object TaskController extends Controller {
     resultOpt | Redirect(routes.TaskController.index)
   }
 
+  def update = Action(parse.urlFormEncoded) { implicit req =>
+
+    val resultOpt: Option[Result] = for {
+      id <- req.body.get(taskIdKey) >>= {
+        case Seq(s) => s.parseInt.toOption
+        case _ => None
+      }
+      name <- req.body.get(taskNameKey) >>= {
+        case Seq(s) => s.some
+        case _ => none
+      }
+      updated <- DB.withTransaction { implicit c =>
+        Task.update(id, name)
+      }
+      result = Redirect(routes.TaskController.detail(id))
+    } yield result
+
+    resultOpt | Redirect(routes.TaskController.index)
+  }
 }

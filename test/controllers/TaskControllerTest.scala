@@ -5,6 +5,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import play.api.Play.current
 import play.api.db._
+import scalaz._, Scalaz._
 
 import org.nisshiee.toban.model._
 
@@ -20,6 +21,10 @@ class TaskControllerTest extends Specification { def is =
   "create"                                                                      ^
     "createされたタスクのdetailにリダイレクト"                                  ! e4^
     "タスク名が指定されていない場合はindexにリダイレクト"                       ! e5^
+                                                                                p^
+  "update"                                                                      ^
+    "存在しないIDをリクエストした場合、indexにリダイレクト"                     ! e6^
+    "存在するタスクをリクエストすると、そのタスクのdetailにリダイレクト"        ! e7^
                                                                                 end
 
   def e1 = {
@@ -70,5 +75,49 @@ class TaskControllerTest extends Specification { def is =
       TaskController.create(request)
     }
     redirectLocation(result) must beSome.which("/task" ==)
+  }
+
+  def e6 = {
+    val result = running(FakeApplication()) {
+      val request = new FakeRequest(
+        "POST"
+        ,routes.TaskController.update.toString
+        ,FakeHeaders()
+        ,Map(
+           TaskController.taskIdKey -> Seq("1")
+          ,TaskController.taskNameKey -> Seq("newtaskname")
+        )
+      )
+      TaskController.update(request)
+    }
+    redirectLocation(result) must beSome.which("/task" ==)
+  }
+
+  def e7 = {
+    val newName = "newtaskname"
+    val resultOpt = running(FakeApplication()) {
+      val taskIdOpt = DB.withConnection { implicit c =>
+        Task.create("testtask") ∘ (_.id)
+      }
+
+      taskIdOpt map { taskId =>
+        val request = new FakeRequest(
+          "POST"
+          ,routes.TaskController.update.toString
+          ,FakeHeaders()
+          ,Map(
+             TaskController.taskIdKey -> Seq(taskId.toString)
+            ,TaskController.taskNameKey -> Seq(newName)
+          )
+        )
+        TaskController.update(request)
+      }
+    }
+
+    val checkOpt = for {
+      result <- resultOpt
+      rlocation <- redirectLocation(result)
+    } yield rlocation startsWith "/task/detail"
+    checkOpt must beSome.which(identity)
   }
 }
