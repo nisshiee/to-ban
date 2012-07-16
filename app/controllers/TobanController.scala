@@ -10,11 +10,7 @@ import Validation.Monad._
 
 import org.nisshiee.toban.model._
 
-object TobanController extends Controller {
-
-  val taskIdKey = "task_id"
-  val dateKey = "date"
-  val memberIdKey = "member_id"
+object TobanController extends Controller with ControllerHelper {
 
   def todayDetail(taskId: Int) = detail(taskId, LocalDate.today.toString)
 

@@ -9,10 +9,7 @@ import scalaz._, Scalaz._
 
 import org.nisshiee.toban.model._
 
-object TaskController extends Controller {
-
-  val taskNameKey = "task_name"
-  val taskIdKey = "task_id"
+object TaskController extends Controller with ControllerHelper {
 
   def index = Action {
 

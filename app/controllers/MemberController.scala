@@ -11,10 +11,7 @@ import org.nisshiee.toban.model._
 import Member.{ Status, Normal, Deleted, Undefined }
 import Member.{ DeleteError, NoMember, InvalidStatus }
 
-object MemberController extends Controller {
-
-  val memberNameKey = "member_name"
-  val memberIdKey = "member_id"
+object MemberController extends Controller with ControllerHelper {
 
   def index = Action {
 
