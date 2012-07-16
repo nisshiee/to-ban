@@ -16,49 +16,31 @@ object TobanController extends Controller with ControllerHelper {
 
   def detail(taskId: Int, dateStr: String) = Action {
 
-    val dateOpt = try { new LocalDate(dateStr).some } catch { case _ => none[LocalDate] }
-    val argsOpt = dateOpt flatMap { date =>
-      DB.withTransaction { implicit c =>
+    val resultOpt: Option[Result] = for {
+      date <- str2DateOpt(dateStr)
+      (task, date, tobanOpt, members) <- DB.withTransaction { implicit c =>
         for {
           task <- Task.find(taskId)
           tobanOpt = Toban.find(taskId, date)
           members = Member.all
         } yield (task, date, tobanOpt, members)
       }
-    }
-    
-    val resultOpt: Option[Result] = argsOpt map {
-      case (t, d, to, ms) => Ok { views.html.Toban.detail(t, d, to, ms) }
-    }
+      result = Ok { views.html.Toban.detail(task, date, tobanOpt, members) }
+    } yield result
+
     resultOpt | Redirect(routes.TaskController.index)
   }
 
-  private def getIntParam[E](key: String)(e: E)(req: Request[Map[String, Seq[String]]]) =
-    req.body.get(key).toSuccess(e) >>= {
-      case Seq(s) => s.parseInt.fail.map(_ => e).validation
-      case _ => e.fail
-    }
-
-  private def getTaskId[E] = getIntParam[E](taskIdKey)_
-
-  private def getMemberId[E] = getIntParam[E](memberIdKey)_
-
-  private def getDate[E](e: E)(req: Request[Map[String, Seq[String]]]) =
-    req.body.get(dateKey).toSuccess(e) >>= {
-      case Seq(s) => try { new LocalDate(s).success } catch { case _ => e.fail }
-      case _ => e.fail
-    }
-
-  def assign = Action(parse.urlFormEncoded) { req =>
+  def assign = Action(parse.urlFormEncoded) { implicit req =>
 
     sealed trait AssignRedirect
     case object TaskList extends AssignRedirect
     case class TobanDetail(taskId: Int, date: LocalDate) extends AssignRedirect
 
-    val tobanVld = for {
-      taskId <- getTaskId[AssignRedirect](TaskList)(req)
-      date <- getDate[AssignRedirect](TaskList)(req)
-      memberId <- getMemberId[AssignRedirect](TobanDetail(taskId, date))(req)
+    val resultVld = for {
+      taskId <- paramVld[AssignRedirect, Int](taskIdKey)(TaskList)
+      date <- paramVld[AssignRedirect, LocalDate](dateKey)(TaskList)
+      memberId <- paramVld[AssignRedirect, Int](memberIdKey)(TobanDetail(taskId, date))
       toban <- DB.withTransaction { implicit c =>
         Toban.replace(taskId, date, memberId).fail ∘ {
           case Toban.NoTask => TaskList
@@ -66,11 +48,9 @@ object TobanController extends Controller with ControllerHelper {
           case _ => TobanDetail(taskId, date)
         } |> (_.validation)
       }
-    } yield toban
+      result = Redirect(routes.TableController.week(toban.date.toString))
+    } yield result
 
-    val resultVld = tobanVld map { toban =>
-      Redirect(routes.TableController.week(toban.date.toString))
-    }
     resultVld ||| {
       case TaskList => Redirect(routes.TaskController.index)
       case TobanDetail(t, d) =>
@@ -78,21 +58,24 @@ object TobanController extends Controller with ControllerHelper {
     }
   }
 
-  def unassign = Action(parse.urlFormEncoded) { req =>
+  def unassign = Action(parse.urlFormEncoded) { implicit req =>
 
     sealed trait UnassignRedirect
     case object Root extends UnassignRedirect
     case class Week(date: LocalDate) extends UnassignRedirect
 
-    val redirectVld = for {
-      date <- getDate[UnassignRedirect](Root)(req)
-      taskId <- getTaskId[UnassignRedirect](Week(date))(req)
-      redirect <- DB.withTransaction { implicit c =>
-        if (Toban.delete(taskId, date)) Week(date).success else Week(date).fail
+    val resultVld = for {
+      date <- paramVld[UnassignRedirect, LocalDate](dateKey)(Root)
+      taskId <- paramVld[UnassignRedirect, Int](taskIdKey)(Week(date))
+      _ <- DB.withTransaction { implicit c =>
+        Toban.delete(taskId, date)
+          .option(())
+          .toSuccess[UnassignRedirect](Week(date))
       }
-    } yield redirect
+      result = Redirect(routes.TableController.week(date.toString))
+    } yield result
 
-    redirectVld ||| identity match {
+    resultVld ||| {
       case Root => Redirect(routes.TableController.index)
       case Week(d) => Redirect(routes.TableController.week(d.toString))
     }
