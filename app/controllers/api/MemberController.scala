@@ -8,10 +8,11 @@ import play.api.libs.json._, Json._
 import play.api.libs.Jsonp
 
 import org.nisshiee.toban.model._
+import org.nisshiee.toban.controller.ControllerHelper
 
-object MemberController extends Controller {
+object MemberController extends Controller with ControllerHelper {
 
-  def getAll(callback: String) = Action {
+  def getAll(callback: String) = ApiAction {
     val members = DB.withTransaction { implicit c =>
       Member.all
     }
