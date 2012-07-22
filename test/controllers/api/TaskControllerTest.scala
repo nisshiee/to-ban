@@ -23,6 +23,7 @@ class TaskControllerTest extends Specification { def is =
     val resultJs = parse(contentAsString(result))
 
     (status(result) must equalTo(OK)) and
+    (header("Access-Control-Allow-Origin", result) must equalTo(Some("*"))) and
     (resultJs.asOpt[List[Task]] must beSome.which(_.isEmpty))
   }
 
@@ -38,6 +39,7 @@ class TaskControllerTest extends Specification { def is =
 
     (expectedOpt must beSome.which(_.size == 2)) and
     (status(result) must equalTo(OK)) and
+    (header("Access-Control-Allow-Origin", result) must equalTo(Some("*"))) and
     (resultJs.asOpt[List[Task]] must equalTo(expectedOpt))
   }
 }
