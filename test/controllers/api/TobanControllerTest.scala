@@ -28,6 +28,7 @@ class TobanControllerTest extends Specification { def is =
     val resultJs = parse(contentAsString(result))
 
     (status(result) must equalTo(OK)) and
+    (header("Access-Control-Allow-Origin", result) must equalTo(Some("*"))) and
     (resultJs.asOpt[Empty] must beSome.which(empty ==))
   }
 
@@ -49,6 +50,7 @@ class TobanControllerTest extends Specification { def is =
       case result => {
         val resultJs = parse(contentAsString(result))
         (status(result) must equalTo(OK)) and
+        (header("Access-Control-Allow-Origin", result) must equalTo(Some("*"))) and
         (resultJs.asOpt[Toban] must equalTo(expectedOpt))
       }
     }
@@ -72,6 +74,7 @@ class TobanControllerTest extends Specification { def is =
       case result => {
         val resultJs = parse(contentAsString(result))
         (status(result) must equalTo(OK)) and
+        (header("Access-Control-Allow-Origin", result) must equalTo(Some("*"))) and
         (resultJs.asOpt[Empty] must beSome.which(empty ==))
       }
     }

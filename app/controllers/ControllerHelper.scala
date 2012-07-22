@@ -39,4 +39,14 @@ trait ControllerHelper {
   implicit lazy val IntExtractor = extractorBy[Int, String] { _.parseInt.toOption }
 
   implicit lazy val DateExtractor = extractorBy[LocalDate, String] { str2DateOpt }
+
+
+  object ApiAction {
+
+    def apply(block: => SimpleResult[_]) = Action {
+      block.withHeaders(
+        "Access-Control-Allow-Origin" -> "*"
+      )
+    }
+  }
 }

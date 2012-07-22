@@ -10,10 +10,11 @@ import play.api.libs.json._, Json._
 import play.api.libs.Jsonp
 
 import org.nisshiee.toban.model._
+import org.nisshiee.toban.controller.ControllerHelper
 
-object TobanController extends Controller {
+object TobanController extends Controller with ControllerHelper {
 
-  def get(taskId: Int, dateStr: String, callback: String) = Action {
+  def get(taskId: Int, dateStr: String, callback: String) = ApiAction {
 
     val tobanOpt = for {
       date <- str2DateOpt(dateStr)
