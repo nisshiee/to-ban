@@ -12,4 +12,4 @@ License
 
 The MIT License (MIT)
 
-see: [LICENSE](https://github.com/nisshiee/to-ban/blob/master/LICENSE)
+see: [LICENSE](https://raw.github.com/nisshiee/to-ban/master/LICENSE)
