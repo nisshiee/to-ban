@@ -43,6 +43,10 @@ trait ControllerHelper {
 
   object ApiAction {
 
-    def apply(block: => SimpleResult[_]) = Action(block)
+    def apply(block: => SimpleResult[_]) = Action {
+      block.withHeaders(
+        "Access-Control-Allow-Origin" -> "*"
+      )
+    }
   }
 }
