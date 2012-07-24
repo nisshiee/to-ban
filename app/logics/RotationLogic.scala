@@ -18,7 +18,7 @@ object RotationLogic {
   def delete(
     before: Seq[Rotation])(
     id: Int)(
-    implicit maxScore: Int, minScore: Int): Validation[DeleteError, OperationResult] =
+    implicit env: Rotation.Env): Validation[DeleteError, OperationResult] =
     OperationResult(Seq(), Seq(), Seq(), Seq()).success
 
   sealed trait InsertError
@@ -28,7 +28,7 @@ object RotationLogic {
   def insert(
     before: Seq[Rotation])(
     task: Task, member: Member, pos: Int)(
-    implicit maxScore: Int, minScore: Int): Validation[InsertError, OperationResult] =
+    implicit env: Rotation.Env): Validation[InsertError, OperationResult] =
       OperationResult(Seq(), Seq(), Seq(), Seq()).success
 
   sealed trait MoveError
@@ -36,6 +36,6 @@ object RotationLogic {
   def move(
     before: Seq[Rotation])(
     id: Int, pos: Int)(
-    implicit maxScore: Int, minScore: Int): Validation[MoveError, OperationResult] =
+    implicit env: Rotation.Env): Validation[MoveError, OperationResult] =
       OperationResult(Seq(), Seq(), Seq(), Seq()).success
 }

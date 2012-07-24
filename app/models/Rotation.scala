@@ -10,6 +10,10 @@ object Rotation {
   case object On extends Status
   case object Off extends Status
 
-  implicit val ScoreMax = Int.MaxValue
-  implicit val ScoreMin = Int.MinValue
+  case class Env(scoreMax: Int, scoreMin: Int)
+}
+
+trait Rotations {
+
+  implicit val DefaultEnv = Rotation.Env(Int.MaxValue, Int.MinValue)
 }

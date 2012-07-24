@@ -2,7 +2,11 @@ package org.nisshiee.toban.logic
 
 import org.specs2._
 
+import scalaz._, Scalaz._
+
 import org.nisshiee.toban.model._
+import org.nisshiee.toban.logic.RotationLogic.{ DeleteError, InsertError, MoveError }
+import org.nisshiee.toban.logic.RotationLogic.{ NoId, Full, IllegalPos }
 
 class RotationLogictest extends Specification { def is =
 
@@ -25,7 +29,21 @@ class RotationLogictest extends Specification { def is =
     "挿入位置のscoreに隙間がない場合、移動後全体を均質化"                       ! e12^
                                                                                 end
 
-  def e1 = ko
+  val testEnv = (8, 0)
+  val testTask = Task(1, "testtask")
+  val testMember1 = Member(1, "member1", Member.Normal)
+  val testMember2 = Member(2, "member2", Member.Normal)
+  val testMember3 = Member(3, "member3", Member.Normal)
+  val testBefore1 = Seq[Rotation]()
+  val testBefore2 = Seq(
+     Rotation(1, testTask, testMember1, 1, Rotation.On)
+    ,Rotation(2, testTask, testMember2, 3, Rotation.On)
+    ,Rotation(3, testTask, testMember3, 6, Rotation.On)
+  )
+
+  // e1 は DefaultEnvをimplicit paramさせる
+  def e1 = RotationLogic.delete(testBefore1)(1) must equalTo(NoId.fail)
+
   def e2 = ko
   def e3 = ko
   def e4 = ko
