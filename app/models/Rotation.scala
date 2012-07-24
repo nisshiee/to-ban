@@ -15,5 +15,5 @@ object Rotation {
 
 trait Rotations {
 
-  implicit val DefaultEnv = Rotation.Env(Int.MaxValue, Int.MinValue)
+  implicit val DefaultEnv = Rotation.Env(Int.MaxValue, 0)
 }
