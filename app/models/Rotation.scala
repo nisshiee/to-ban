@@ -2,7 +2,18 @@
 
 package org.nisshiee.toban.model
 
-case class Rotation(id: Int, task: Task, member: Member, score: Int, status: Rotation.Status)
+sealed trait Rotation {
+  val task: Task
+  val member: Member
+  val score: Int
+  val status: Rotation.Status
+}
+case class IdentifiedRotation(
+  id: Int, task: Task, member: Member, score: Int, status: Rotation.Status
+) extends Rotation
+case class UnIdentifiedRotation(
+  task: Task, member: Member, score: Int, status: Rotation.Status
+) extends Rotation
 
 object Rotation {
 

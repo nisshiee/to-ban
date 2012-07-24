@@ -39,14 +39,14 @@ class RotationLogictest extends Specification with DataTables { def is =
   val testMember4 = Member(4, "member4", Member.Normal)
   val testBefore1 = Seq[Rotation]()
   val testBefore2 = Seq(
-     Rotation(1, testTask, testMember1, 1, Rotation.On)
-    ,Rotation(2, testTask, testMember2, 3, Rotation.On)
-    ,Rotation(3, testTask, testMember3, 6, Rotation.On)
+     IdentifiedRotation(1, testTask, testMember1, 1, Rotation.On)
+    ,IdentifiedRotation(2, testTask, testMember2, 3, Rotation.On)
+    ,IdentifiedRotation(3, testTask, testMember3, 6, Rotation.On)
   )
   val testBefore3 = Seq(
-     Rotation(1, testTask, testMember1, 1, Rotation.On)
-    ,Rotation(2, testTask, testMember2, 2, Rotation.On)
-    ,Rotation(3, testTask, testMember3, 3, Rotation.On)
+     IdentifiedRotation(1, testTask, testMember1, 1, Rotation.On)
+    ,IdentifiedRotation(2, testTask, testMember2, 2, Rotation.On)
+    ,IdentifiedRotation(3, testTask, testMember3, 3, Rotation.On)
   )
 
   def e1 = RotationLogic.delete(testBefore1)(1) must equalTo(NoId.fail)
@@ -54,20 +54,20 @@ class RotationLogictest extends Specification with DataTables { def is =
   def e2 = RotationLogic.delete(testBefore2)(2) must equalTo {
     OperationResult(
        Seq(
-         Rotation(1, testTask, testMember1, 1, Rotation.On)
-        ,Rotation(3, testTask, testMember3, 6, Rotation.On)
+         IdentifiedRotation(1, testTask, testMember1, 1, Rotation.On)
+        ,IdentifiedRotation(3, testTask, testMember3, 6, Rotation.On)
       )
-      ,Seq[Rotation]()
-      ,Seq[Rotation]()
-      ,Seq(2)
+      ,Seq[UnIdentifiedRotation]()
+      ,Seq[IdentifiedRotation]()
+      ,Seq(IdentifiedRotation(2, testTask, testMember2, 3, Rotation.On))
     ).success
   }
 
   def e3 = {
     val fullBefore = Seq(
-       Rotation(1, testTask, testMember1, 1, Rotation.On)
-      ,Rotation(2, testTask, testMember2, 3, Rotation.On)
-      ,Rotation(3, testTask, testMember3, 6, Rotation.On)
+       IdentifiedRotation(1, testTask, testMember1, 1, Rotation.On)
+      ,IdentifiedRotation(2, testTask, testMember2, 3, Rotation.On)
+      ,IdentifiedRotation(3, testTask, testMember3, 6, Rotation.On)
     )
     val fullEnv = Rotation.Env(4, 0)
     RotationLogic.insert(fullBefore)(testTask, testMember4, 2)(fullEnv) must equalTo(Full.fail)
@@ -95,14 +95,14 @@ class RotationLogictest extends Specification with DataTables { def is =
     RotationLogic.insert(testBefore2)(testTask, testMember4, 2)(testEnv) must equalTo {
       OperationResult(
          Seq(
-            Rotation(1, testTask, testMember1, 1, Rotation.On)
-           ,Rotation(2, testTask, testMember2, 3, Rotation.On)// あれ？挿入されるIDは？
-           ,Rotation(2, testTask, testMember2, 3, Rotation.On)
-           ,Rotation(3, testTask, testMember3, 6, Rotation.On)
+            IdentifiedRotation(1, testTask, testMember1, 1, Rotation.On)
+           ,UnIdentifiedRotation(testTask, testMember4, 2, Rotation.On)
+           ,IdentifiedRotation(2, testTask, testMember2, 3, Rotation.On)
+           ,IdentifiedRotation(3, testTask, testMember3, 6, Rotation.On)
          )
-        ,Seq[Rotation]()
-        ,Seq[Rotation]()
-        ,Seq(2)
+        ,Seq[UnIdentifiedRotation](UnIdentifiedRotation(testTask, testMember4, 2, Rotation.On))
+        ,Seq[IdentifiedRotation]()
+        ,Seq[IdentifiedRotation]()
       ).success
     }
   def e6_2 = ko

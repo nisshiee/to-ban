@@ -7,9 +7,9 @@ object RotationLogic {
 
   case class OperationResult(
      result: Seq[Rotation]
-    ,inserted: Seq[Rotation]
-    ,updated: Seq[Rotation]
-    ,deleted: Seq[Int]
+    ,inserted: Seq[UnIdentifiedRotation]
+    ,updated: Seq[IdentifiedRotation]
+    ,deleted: Seq[IdentifiedRotation]
   )
 
   sealed trait DeleteError
