@@ -8,8 +8,9 @@ import play.api.db._
 import scalaz._, Scalaz._
 
 import org.nisshiee.toban.model._
+import org.nisshiee.toban.test.TestHelper
 
-class TaskControllerTest extends Specification { def is =
+class TaskControllerTest extends Specification with TestHelper { def is =
 
   "index"                                                                       ^
     "OKが返る"                                                                  ! e1^
@@ -28,21 +29,21 @@ class TaskControllerTest extends Specification { def is =
                                                                                 end
 
   def e1 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       TaskController.index(FakeRequest())
     }
     status(result) must equalTo(OK)
   }
 
   def e2 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       TaskController.detail(1)(FakeRequest())
     }
     redirectLocation(result) must beSome.which("/task" ==)
   }
 
   def e3 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val Some(Task(id, _)) = DB.withTransaction { implicit c =>
         Task.create("testtask")
       }
@@ -52,7 +53,7 @@ class TaskControllerTest extends Specification { def is =
   }
 
   def e4 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.TaskController.create.toString
@@ -65,7 +66,7 @@ class TaskControllerTest extends Specification { def is =
   }
 
   def e5 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.TaskController.create.toString
@@ -78,7 +79,7 @@ class TaskControllerTest extends Specification { def is =
   }
 
   def e6 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.TaskController.update.toString
@@ -95,7 +96,7 @@ class TaskControllerTest extends Specification { def is =
 
   def e7 = {
     val newName = "newtaskname"
-    val resultOpt = running(FakeApplication()) {
+    val resultOpt = runningEmptyApplication {
       val taskIdOpt = DB.withConnection { implicit c =>
         Task.create("testtask") ∘ (_.id)
       }

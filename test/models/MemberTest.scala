@@ -7,7 +7,9 @@ import play.api.Play.current
 import scalaz._, Scalaz._, Validation.Monad._
 import play.api.db._
 
-class MemberTest extends Specification { def is =
+import org.nisshiee.toban.test.TestHelper
+
+class MemberTest extends Specification with TestHelper { def is =
 
   "Memberケースクラスのテスト"                                                  ^
     "MemberShowのテスト"                                                        ^
@@ -69,20 +71,20 @@ statusが更新されたMemberがSuccessで返る"""                            
   def e7 =
     Member(1, "test-member", Member.Normal) ≟ Member(2, "test-member", Member.Normal) must beFalse
   
-  def e8 = running(FakeApplication()) {
+  def e8 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       Member.all must be empty
     }
   }
 
-  def e9 = running(FakeApplication()) {
+  def e9 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val name = "testmember"
       Member.create(name) must beSome.which(_.name ≟ name)
     }
   }
 
-  def e13 = running(FakeApplication()) {
+  def e13 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val name1 = "testmember1"
       val name2 = "testmember2"
@@ -100,7 +102,7 @@ statusが更新されたMemberがSuccessで返る"""                            
     }
   }
 
-  def e10 = running(FakeApplication()) {
+  def e10 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val name = "testmember"
       val createResult = Member.create(name)
@@ -116,7 +118,7 @@ statusが更新されたMemberがSuccessで返る"""                            
   }
 
 
-  def e11 = running(FakeApplication()) {
+  def e11 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val (name1, name2) = ("testmember1", "testmember2")
       val createResult1 = Member.create(name1)
@@ -131,7 +133,7 @@ statusが更新されたMemberがSuccessで返る"""                            
     }
   }
 
-  def e12 = running(FakeApplication()) {
+  def e12 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val name = "日本語メンバー"
       val createResult = Member.create(name)
@@ -146,13 +148,13 @@ statusが更新されたMemberがSuccessで返る"""                            
     }
   }
 
-  def e14 = running(FakeApplication()) {
+  def e14 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       Member.find(1) must beNone
     }
   }
 
-  def e15 = running(FakeApplication()) {
+  def e15 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val validation = for {
         m1 <- Member.create("testmember")
@@ -174,13 +176,13 @@ statusが更新されたMemberがSuccessで返る"""                            
     }
   }
 
-  def e16 = running(FakeApplication()) {
+  def e16 = runningEmptyApplication {
     DB.withConnection { implicit c =>
       Member.delete(1) must equalTo(Member.NoMember.fail[Member])
     }
   }
 
-  def e17 = running(FakeApplication()) {
+  def e17 = runningEmptyApplication {
     DB.withConnection { implicit c =>
       for {
         member <- Member.create("testmember")
@@ -190,7 +192,7 @@ statusが更新されたMemberがSuccessで返る"""                            
     } must beSome.which(identity)
   }
 
-  def e18 = running(FakeApplication()) {
+  def e18 = runningEmptyApplication {
     DB.withConnection { implicit c =>
       for {
         before <- Member.create("testmember")
@@ -202,14 +204,14 @@ statusが更新されたMemberがSuccessで返る"""                            
     }
   }
 
-  def e19 = running(FakeApplication()) {
+  def e19 = runningEmptyApplication {
 
     DB.withConnection { implicit c =>
       Member.update(1, "updatedmember")
     } must beNone
   }
 
-  def e20 = running(FakeApplication()) {
+  def e20 = runningEmptyApplication {
 
     val newname = "updatedmember"
 

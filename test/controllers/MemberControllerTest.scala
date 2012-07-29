@@ -8,8 +8,9 @@ import play.api.db._
 import scalaz._, Scalaz._
 
 import org.nisshiee.toban.model._
+import org.nisshiee.toban.test.TestHelper
 
-class MemberControllerTest extends Specification { def is =
+class MemberControllerTest extends Specification with TestHelper { def is =
 
   "index"                                                                       ^
     "OKが返る"                                                                  ! e1^
@@ -32,21 +33,21 @@ class MemberControllerTest extends Specification { def is =
                                                                                 end
 
   def e1 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       MemberController.index(FakeRequest())
     }
     status(result) must equalTo(OK)
   }
 
   def e2 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       MemberController.detail(1)(FakeRequest())
     }
     redirectLocation(result) must beSome.which("/member" ==)
   }
 
   def e3 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val Some(Member(id, _, _)) = DB.withTransaction { implicit c =>
         Member.create("testmember")
       }
@@ -56,7 +57,7 @@ class MemberControllerTest extends Specification { def is =
   }
 
   def e4 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.MemberController.create.toString
@@ -69,7 +70,7 @@ class MemberControllerTest extends Specification { def is =
   }
 
   def e5 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.MemberController.create.toString
@@ -82,7 +83,7 @@ class MemberControllerTest extends Specification { def is =
   }
 
   def e6 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.MemberController.delete.toString
@@ -95,7 +96,7 @@ class MemberControllerTest extends Specification { def is =
   }
 
   def e7 = {
-    val resultOpt = running(FakeApplication()) {
+    val resultOpt = runningEmptyApplication {
       val memberIdOpt = DB.withConnection { implicit c =>
         Member.create("testmember") ∘ (_.id)
       }
@@ -119,7 +120,7 @@ class MemberControllerTest extends Specification { def is =
   }
 
   def e8 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.MemberController.update.toString
@@ -136,7 +137,7 @@ class MemberControllerTest extends Specification { def is =
 
   def e9 = {
     val newName = "newmembername"
-    val resultOpt = running(FakeApplication()) {
+    val resultOpt = runningEmptyApplication {
       val memberIdOpt = DB.withConnection { implicit c =>
         Member.create("testmember") ∘ (_.id)
       }

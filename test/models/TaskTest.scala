@@ -7,7 +7,9 @@ import play.api.Play.current
 import scalaz._, Scalaz._
 import play.api.db._
 
-class TaskTest extends Specification { def is =
+import org.nisshiee.toban.test.TestHelper
+
+class TaskTest extends Specification with TestHelper { def is =
 
   "Taskケースクラスのテスト"                                                    ^
     "TaskShowのテスト"                                                          ^
@@ -55,20 +57,20 @@ class TaskTest extends Specification { def is =
   def e6 = Task(1, "test-task") ≟ Task(2, "other-task") must beFalse
   def e7 = Task(1, "test-task") ≟ Task(2, "test-task") must beFalse
 
-  def e8 = running(FakeApplication()) {
+  def e8 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       Task.all must be empty
     }
   }
 
-  def e9 = running(FakeApplication()) {
+  def e9 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val name = "testtask"
       Task.create(name) must beSome.which(_.name ≟ name)
     }
   }
 
-  def e13 = running(FakeApplication()) {
+  def e13 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val name1 = "testtask1"
       val name2 = "testtask2"
@@ -86,7 +88,7 @@ class TaskTest extends Specification { def is =
     }
   }
 
-  def e10 = running(FakeApplication()) {
+  def e10 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val name = "testtask"
       val createResult = Task.create(name)
@@ -101,7 +103,7 @@ class TaskTest extends Specification { def is =
     }
   }
 
-  def e11 = running(FakeApplication()) {
+  def e11 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val (name1, name2) = ("testtask1", "testtask2")
       val createResult1 = Task.create(name1)
@@ -116,7 +118,7 @@ class TaskTest extends Specification { def is =
     }
   }
 
-  def e12 = running(FakeApplication()) {
+  def e12 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val name = "日本語タスク"
       val createResult = Task.create(name)
@@ -131,13 +133,13 @@ class TaskTest extends Specification { def is =
     }
   }
 
-  def e14 = running(FakeApplication()) {
+  def e14 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       Task.find(1) must beNone
     }
   }
 
-  def e15 = running(FakeApplication()) {
+  def e15 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val validation = for {
         t <- Task.create("testtask")
@@ -147,13 +149,13 @@ class TaskTest extends Specification { def is =
     }
   }
 
-  def e16 = running(FakeApplication()) {
+  def e16 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       Task.update(1, "testtask")
     } must beNone
   }
 
-  def e17 = running(FakeApplication()) {
+  def e17 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       for {
         task <- Task.create("testtask")

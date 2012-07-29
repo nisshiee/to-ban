@@ -8,8 +8,9 @@ import play.api.db._
 import play.api.libs.json._, Json._
 
 import org.nisshiee.toban.model._
+import org.nisshiee.toban.test.TestHelper
 
-class MemberControllerTest extends Specification { def is =
+class MemberControllerTest extends Specification with TestHelper { def is =
 
   "getAll"                                                                      ^
     "Memberが登録されていない場合、空ArrayのJSONが返る"                         ! e1^
@@ -17,7 +18,7 @@ class MemberControllerTest extends Specification { def is =
                                                                                 end
 
   def e1 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       MemberController.getAll("")(FakeRequest())
     }
     val resultJs = parse(contentAsString(result))
@@ -27,7 +28,7 @@ class MemberControllerTest extends Specification { def is =
     (resultJs.asOpt[List[Member]] must beSome.which(_.isEmpty))
   }
 
-  def e2 = running(FakeApplication()) {
+  def e2 = runningEmptyApplication {
     val expectedOpt = DB.withConnection { implicit c =>
       for {
         t1 <- Member.create("testmember1")
