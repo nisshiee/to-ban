@@ -12,12 +12,11 @@ object ApplicationBuild extends Build {
       "org.scalaz" %% "scalaz-core" % "6.0.4"
       ,"org.scala-tools.time" %% "time" % "0.5"
       ,"org.mockito" % "mockito-all" % "1.9.0" % "test"
-      ,"org.pegdown" % "pegdown" % "1.1.0" % "test"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
       // Add your own project settings here
-      testOptions in (Test, test) += Tests.Argument("console", "html", "junitxml")
+      testOptions in (Test, test) += Tests.Argument("console", "junitxml")
     )
 
 }
