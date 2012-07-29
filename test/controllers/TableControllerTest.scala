@@ -7,8 +7,9 @@ import play.api.Play.current
 import play.api.db._
 
 import org.nisshiee.toban.model._
+import org.nisshiee.toban.test.TestHelper
 
-class TableControllerTest extends Specification { def is =
+class TableControllerTest extends Specification with TestHelper { def is =
 
   "index"                                                                       ^
     "タスクが登録されていればOKが返る"                                          ! e1^
@@ -35,7 +36,7 @@ class TableControllerTest extends Specification { def is =
                                                                                 end
 
   def e1 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       DB.withTransaction { implicit c =>
         Task.create("testtask")
       }
@@ -45,7 +46,7 @@ class TableControllerTest extends Specification { def is =
   }
 
   def e2 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       TableController.index(FakeRequest())
     }
     redirectLocation(result) must beSome.which("/task" ==)
@@ -53,14 +54,14 @@ class TableControllerTest extends Specification { def is =
 
 
   def e3 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       TableController.week("2012-06-16")(FakeRequest())
     }
     redirectLocation(result) must beSome.which("/task" ==)
   }
 
   def e4 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       DB.withTransaction { implicit c =>
         Task.create("testtask")
       }
@@ -70,7 +71,7 @@ class TableControllerTest extends Specification { def is =
   }
 
   def e5 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       DB.withTransaction { implicit c =>
         Task.create("testtask")
       }
@@ -79,7 +80,7 @@ class TableControllerTest extends Specification { def is =
     status(result) must equalTo(OK)
   }
 
-  def e6 = running(FakeApplication()) {
+  def e6 = runningEmptyApplication {
 
     val date = new LocalDate("2012-06-17")
 
@@ -100,7 +101,7 @@ class TableControllerTest extends Specification { def is =
     check must beSome.like { case r => r }
   }
 
-  def e7 = running(FakeApplication()) {
+  def e7 = runningEmptyApplication {
 
     val date = new LocalDate("2012-06-17")
 
@@ -114,7 +115,7 @@ class TableControllerTest extends Specification { def is =
     check must beNone
   }
 
-  def e8 = running(FakeApplication()) {
+  def e8 = runningEmptyApplication {
 
     val date = new LocalDate("2012-06-17")
 
