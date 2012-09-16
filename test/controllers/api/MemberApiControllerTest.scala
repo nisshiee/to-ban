@@ -10,7 +10,7 @@ import play.api.libs.json._, Json._
 import org.nisshiee.toban.model._
 import org.nisshiee.toban.test.TestHelper
 
-class MemberControllerTest extends Specification with TestHelper { def is =
+class MemberApiControllerTest extends Specification with TestHelper { def is =
 
   "getAll"                                                                      ^
     "Memberが登録されていない場合、空ArrayのJSONが返る"                         ! e1^
