@@ -8,6 +8,7 @@ package object model
      with Times
      with LocalDates
      with Tobans
+     with Memos
 {
 
 }
