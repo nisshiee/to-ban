@@ -11,7 +11,7 @@ import play.api.mvc._
 import org.nisshiee.toban.model._
 import org.nisshiee.toban.test.TestHelper
 
-class TobanControllerTest extends Specification with TestHelper { def is =
+class TobanApiControllerTest extends Specification with TestHelper { def is =
 
   "get"                                                                         ^
     "Tobanが登録されていない場合、空ObjectのJSONが返る"                         ! e1^
