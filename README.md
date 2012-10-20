@@ -1,6 +1,8 @@
 to-ban
 ========================================
 
+[![Build Status](https://secure.travis-ci.org/nisshiee/to-ban.png)](http://travis-ci.org/nisshiee/to-ban)
+
 How to build
 ----------------------------------------
 
