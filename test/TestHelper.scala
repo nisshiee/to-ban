@@ -12,6 +12,7 @@ trait TestHelper {
   lazy val delToban = SQL("""TRUNCATE TABLE toban""")
   lazy val delTask = SQL("""TRUNCATE TABLE task""")
   lazy val delMember = SQL("""TRUNCATE TABLE member""")
+  lazy val delMemo = SQL("""TRUNCATE TABLE memo""")
 
   def runningEmptyApplication[A](f: => A) = running(FakeApplication()) {
 
@@ -19,6 +20,7 @@ trait TestHelper {
       delToban.execute()
       delTask.execute()
       delMember.execute()
+      delMemo.execute()
     }
 
     f
