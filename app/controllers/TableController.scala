@@ -14,53 +14,26 @@ object TableController extends Controller {
   def index = Action {
 
     val dates = LocalDate.today.weeklyList
-    tableByDates(dates)
+    tableResult(dates)
   }
 
   def week(dateStr: String) = Action {
 
-    val dateOpt = try { new LocalDate(dateStr).some } catch { case _ => none[LocalDate] }
-    val resultOpt: Option[Result] = dateOpt ∘ { _.weeklyList |> tableByDates }
+    val dateOpt = str2DateOpt(dateStr)
+    val resultOpt: Option[Result] = dateOpt ∘ { _.weeklyList |> tableResult }
     resultOpt | Redirect(routes.TableController.index)
   }
 
-  private[controller] def tableByDates(dates: Seq[LocalDate]): Result = (for {
-    tasksAssign <- getTasksAssign(dates)
-    memos = getMemos(dates)
-    result: Result = tableResult(dates, memos)(tasksAssign)
-  } yield result) | Redirect(routes.TaskController.index)
+  def tableResult(dates: Seq[LocalDate]) = {
 
-  private[controller] def pagenationByDate(base: LocalDate): (LocalDate, LocalDate) =
-    (base - 7.day, base + 7.day)
-
-  private[controller] def pagenationByDates(dates: Seq[LocalDate]): (LocalDate, LocalDate) =
-    dates.headOption | LocalDate.today |> pagenationByDate
-
-  private[controller] def tableResult(dates: Seq[LocalDate], memos: Map[LocalDate, Option[String]])
-  : Tuple2[Seq[Task], Assign] => Result = {
-    case (tasks, assign) => {
-      val (prevWeekDate, nextWeekDate) = pagenationByDates(dates)
-      Ok { views.html.Table.index(dates, memos, tasks, assign, prevWeekDate, nextWeekDate) }
-    }
+    val table = DB.withTransaction { implicit c => Table(dates) }
+    val (prevWeekDate, nextWeekDate) = pagenationByDates(dates)
+    Ok { views.html.Table.index(table, prevWeekDate, nextWeekDate) }
   }
 
-  type Assign = Map[(LocalDate, Task), Member]
+  def pagenationByDate(base: LocalDate): (LocalDate, LocalDate) =
+    (base - 7.day, base + 7.day)
 
-  private[controller] def getTasksAssign(dates: Seq[LocalDate]): Option[(Seq[Task], Assign)] =
-    DB.withTransaction { implicit c =>
-      Task.all match {
-        case Nil => None
-        case l => (for {
-          date <- dates.toList
-          task <- l
-          toban <- Toban.find(task.id, date)
-          member = toban.member
-        } yield (date, task) -> member) |> (_.toMap) |> (l -> _) |> (_.some)
-      }
-    }
-
-  private[controller] def getMemos(dates: Seq[LocalDate]): Map[LocalDate, Option[String]] =
-    DB.withTransaction { implicit c =>
-      dates ∘ { d => d -> Memo.find(d).map(_.memo) } |> (_.toMap)
-    }
+  def pagenationByDates(dates: Seq[LocalDate]): (LocalDate, LocalDate) =
+    dates.headOption | LocalDate.today |> pagenationByDate
 }

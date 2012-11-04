@@ -1,8 +1,5 @@
 @(
-   dates: Seq[org.scala_tools.time.Imports.LocalDate]
-  ,memos: Map[org.scala_tools.time.Imports.LocalDate, Option[String]]
-  ,tasks: Seq[org.nisshiee.toban.model.Task]
-  ,assignments: Map[(org.scala_tools.time.Imports.LocalDate, org.nisshiee.toban.model.Task), org.nisshiee.toban.model.Member]
+   table: org.nisshiee.toban.model.Table
   ,prevWeekDate: org.scala_tools.time.Imports.LocalDate
   ,nextWeekDate: org.scala_tools.time.Imports.LocalDate
 )
@@ -18,40 +15,40 @@
 
 <table class="table table-striped table-bordered">
   <colgroup span="1">
-  <colgroup span="@tasks.size">
+  <colgroup span="@table.tasks.size">
   <thead>
     <tr>
       <th></th>
-      @tasks.map { t =>
+      @table.tasks.map { t =>
         <th>@t.shows</th>
       }
     </tr>
   </thead>
   <tbody>
-    @dates.map { d =>
-      @if(d.isToday) {
+    @table.rows.map { row =>
+      @if(row.date.isToday) {
         <tr class="today">
       } else {
         <tr>
       }
-        <th><a href="@routes.DayController.day(d.toString)">
-        @defining(d.dayOfWeekType) { dayOfWeekType =>
+        <th><a href="@routes.DayController.day(row.date.toString)">
+        @defining(row.date.dayOfWeekType) { dayOfWeekType =>
           @dayOfWeekType match {
             case Bizday => {
-              <span class="bizday">@d.toString("yyyy-MM-dd (EEE)", Locale.US)</span>
+              <span class="bizday">@row.date.toString("yyyy-MM-dd (EEE)", Locale.US)</span>
             }
             case Saturday => {
-              <span class="saturday">@d.toString("yyyy-MM-dd (EEE)", Locale.US)</span>
+              <span class="saturday">@row.date.toString("yyyy-MM-dd (EEE)", Locale.US)</span>
             }
             case Sunday => {
-              <span class="sunday">@d.toString("yyyy-MM-dd (EEE)", Locale.US)</span>
+              <span class="sunday">@row.date.toString("yyyy-MM-dd (EEE)", Locale.US)</span>
             }
           }
         }
         </a>
-        @defining(memos.get(d)) { memoOptOpt =>
-          @memoOptOpt match {
-            case Some(Some(m)) => {
+        @defining(row.memoOpt) { memoOpt =>
+          @memoOpt match {
+            case Some(m) => {
               <br />
               @m
             }
@@ -60,27 +57,25 @@
         }
         </th>
 
-        @tasks.map { t =>
-          @defining(assignments.get(d -> t)) { memberOpt =>
-            @memberOpt match {
-              case Some(m) => {
-                @defining(m.status) { status =>
-                  @status match {
-                    case Member.Normal => {
-                      <td><a class="btn btn-info" href="@routes.TobanController.detail(t.id, d.shows)">@m.shows</a></td>
-                    }
-                    case Member.Deleted => {
-                      <td><a class="btn btn-inverse" href="@routes.TobanController.detail(t.id, d.shows)">@m.shows</a></td>
-                    }
-                    case Member.Undefined => {
-                      <td><a class="btn btn-danger" href="@routes.TobanController.detail(t.id, d.shows)">@m.shows</a></td>
-                    }
+        @row.assign.map { tobanOpt =>
+          @tobanOpt match {
+            case (t, Some(m)) => {
+              @defining(m.status) { status =>
+                @status match {
+                  case Member.Normal => {
+                    <td><a class="btn btn-info" href="@routes.TobanController.detail(t.id, row.date.shows)">@m.shows</a></td>
+                  }
+                  case Member.Deleted => {
+                    <td><a class="btn btn-inverse" href="@routes.TobanController.detail(t.id, row.date.shows)">@m.shows</a></td>
+                  }
+                  case Member.Undefined => {
+                    <td><a class="btn btn-danger" href="@routes.TobanController.detail(t.id, row.date.shows)">@m.shows</a></td>
                   }
                 }
               }
-              case None => {
-                <td><a class="btn" href="@routes.TobanController.detail(t.id, d.shows)">assign</a></td>
-              }
+            }
+            case (t, None) => {
+              <td><a class="btn" href="@routes.TobanController.detail(t.id, row.date.shows)">assign</a></td>
             }
           }
         }

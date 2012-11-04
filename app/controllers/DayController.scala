@@ -32,7 +32,7 @@ object DayController extends Controller with ControllerHelper {
         case "" => DB.withTransaction { implicit c => Memo.delete(date) }
         case m => DB.withTransaction { implicit c => Memo.replace(date, m) }
       }
-      result = Redirect(routes.DayController.day(date.toString))
+      result = Redirect(routes.TableController.week(date.toString))
     } yield result
 
     resultOpt | Redirect(routes.TableController.index)

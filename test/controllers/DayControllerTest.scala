@@ -17,7 +17,7 @@ class DayControllerTest extends Specification with TestHelper { def is =
                                                                                                     p^
   "updateMemo"                                                                                      ^
     "不正な日付をリクエストした場合、/にリダイレクト"                                               ! e3^
-    "/day/<更新指定日>にリダイレクト"                                                               ! e4^
+    "/week/<更新指定日>にリダイレクト"                                                               ! e4^
                                                                                                     end
 
   def e1 = {
@@ -66,7 +66,7 @@ class DayControllerTest extends Specification with TestHelper { def is =
         ,DB.withConnection { implicit c => Memo.find(new LocalDate(2012, 10, 21)) }
       )
     }
-    (redirectLocation(result) must beSome.which("/day/2012-10-21" ==)) and
+    (redirectLocation(result) must beSome.which("/week/2012-10-21" ==)) and
     (after must beSome.like { case Memo(_, m) => m must equalTo("memo") })
   }
 }
