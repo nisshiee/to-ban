@@ -1,6 +1,6 @@
 @(
    date: org.scala_tools.time.Imports.LocalDate
-  ,memo: String
+  ,memo: Option[String]
 )
 
 @import org.nisshiee.toban.controller._
@@ -14,10 +14,17 @@
 
 <div class="well">
   <h3>memo</h3>
-  <p>@memo</p>
+  @memo match {
+    case Some(m) => {
+      <p>@memo</p>
+    }
+    case None => {
+      <p><span class="label">no memo</span></p>
+    }
+  }
   <form class="form-horizontal" action="@routes.DayController.updateMemo" method="post">
     <input type="hidden" name="@DayController.dateKey" value="@date.toString">
-    <input type="text" required name="@DayController.memoKey" value="@memo">
+    <input type="text" name="@DayController.memoKey" value="@memo">
     <input class="btn btn-primary" type="submit" value="update">
   </form>
 </div>

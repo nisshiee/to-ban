@@ -20,7 +20,7 @@ object DayController extends Controller with ControllerHelper {
   def dayDetail(date: LocalDate) = Action {
     val memo = DB.withTransaction { implicit c =>
       Memo.find(date)
-    } ∘ (_.shows) | ""
+    } ∘ (_.shows)
     Ok { views.html.Day.detail(date, memo) }
   }
 
