@@ -24,12 +24,11 @@ object TableController extends Controller {
     resultOpt | Redirect(routes.TableController.index)
   }
 
-  private[controller] def tableByDates(dates: Seq[LocalDate]): Result = {
-
-    val tasksAssignOpt = getTasksAssign(dates)
-    val resultOpt: Option[Result] = tasksAssignOpt ∘ tableResult(dates)
-    resultOpt | Redirect(routes.TaskController.index)
-  }
+  private[controller] def tableByDates(dates: Seq[LocalDate]): Result = (for {
+    tasksAssign <- getTasksAssign(dates)
+    memos = getMemos(dates)
+    result: Result = tableResult(dates, memos)(tasksAssign)
+  } yield result) | Redirect(routes.TaskController.index)
 
   private[controller] def pagenationByDate(base: LocalDate): (LocalDate, LocalDate) =
     (base - 7.day, base + 7.day)
@@ -37,11 +36,11 @@ object TableController extends Controller {
   private[controller] def pagenationByDates(dates: Seq[LocalDate]): (LocalDate, LocalDate) =
     dates.headOption | LocalDate.today |> pagenationByDate
 
-  private[controller] def tableResult(dates: Seq[LocalDate])
+  private[controller] def tableResult(dates: Seq[LocalDate], memos: Map[LocalDate, Option[String]])
   : Tuple2[Seq[Task], Assign] => Result = {
     case (tasks, assign) => {
       val (prevWeekDate, nextWeekDate) = pagenationByDates(dates)
-      Ok { views.html.Table.index(dates, tasks, assign, prevWeekDate, nextWeekDate) }
+      Ok { views.html.Table.index(dates, memos, tasks, assign, prevWeekDate, nextWeekDate) }
     }
   }
 
@@ -58,5 +57,10 @@ object TableController extends Controller {
           member = toban.member
         } yield (date, task) -> member) |> (_.toMap) |> (l -> _) |> (_.some)
       }
+    }
+
+  private[controller] def getMemos(dates: Seq[LocalDate]): Map[LocalDate, Option[String]] =
+    DB.withTransaction { implicit c =>
+      dates ∘ { d => d -> Memo.find(d).map(_.memo) } |> (_.toMap)
     }
 }

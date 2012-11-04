@@ -1,5 +1,6 @@
 @(
    dates: Seq[org.scala_tools.time.Imports.LocalDate]
+  ,memos: Map[org.scala_tools.time.Imports.LocalDate, Option[String]]
   ,tasks: Seq[org.nisshiee.toban.model.Task]
   ,assignments: Map[(org.scala_tools.time.Imports.LocalDate, org.nisshiee.toban.model.Task), org.nisshiee.toban.model.Member]
   ,prevWeekDate: org.scala_tools.time.Imports.LocalDate
@@ -33,19 +34,31 @@
       } else {
         <tr>
       }
+        <th><a href="@routes.DayController.day(d.toString)">
         @defining(d.dayOfWeekType) { dayOfWeekType =>
           @dayOfWeekType match {
             case Bizday => {
-              <th>@d.toString("yyyy-MM-dd (EEE)", Locale.US)</th>
+              <span class="bizday">@d.toString("yyyy-MM-dd (EEE)", Locale.US)</span>
             }
             case Saturday => {
-              <th class="saturday">@d.toString("yyyy-MM-dd (EEE)", Locale.US)</th>
+              <span class="saturday">@d.toString("yyyy-MM-dd (EEE)", Locale.US)</span>
             }
             case Sunday => {
-              <th class="sunday">@d.toString("yyyy-MM-dd (EEE)", Locale.US)</th>
+              <span class="sunday">@d.toString("yyyy-MM-dd (EEE)", Locale.US)</span>
             }
           }
         }
+        </a>
+        @defining(memos.get(d)) { memoOptOpt =>
+          @memoOptOpt match {
+            case Some(Some(m)) => {
+              <br />
+              @m
+            }
+            case _ => {}
+          }
+        }
+        </th>
 
         @tasks.map { t =>
           @defining(assignments.get(d -> t)) { memberOpt =>
