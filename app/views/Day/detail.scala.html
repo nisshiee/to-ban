@@ -1,0 +1,32 @@
+@(
+   date: org.scala_tools.time.Imports.LocalDate
+  ,memo: Option[String]
+)
+
+@import org.nisshiee.toban.controller._
+@import org.nisshiee.toban.model._
+
+@main("[to-ban] date detail") {
+
+<h1>day detail</h1>
+
+<h2>@date.toString</h2>
+
+<div class="well">
+  <h3>memo</h3>
+  @memo match {
+    case Some(m) => {
+      <p>@memo</p>
+    }
+    case None => {
+      <p><span class="label">no memo</span></p>
+    }
+  }
+  <form class="form-horizontal" action="@routes.DayController.updateMemo" method="post">
+    <input type="hidden" name="@DayController.dateKey" value="@date.toString">
+    <input type="text" name="@DayController.memoKey" value="@memo">
+    <input class="btn btn-primary" type="submit" value="update">
+  </form>
+</div>
+
+}
