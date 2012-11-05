@@ -2,6 +2,7 @@
 
 @import org.nisshiee.toban.controller._
 @import org.nisshiee.toban.model._
+@import org.nisshiee.toban.util.ViewHelper._
 @import scalaz._, Scalaz._
 
 @main("[to-ban] member detail") {
@@ -16,7 +17,7 @@
     </tr>
     <tr>
       <th>name</th>
-      <td>@member.name</td>
+      <td><span class="label @member.labelClass">@member.name</span></td>
     </tr>
     <tr>
       <th>status</th>

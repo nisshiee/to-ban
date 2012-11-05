@@ -6,6 +6,7 @@
 
 @import org.nisshiee.toban.controller._
 @import org.nisshiee.toban.model._
+@import org.nisshiee.toban.util.ViewHelper._
 @import scalaz._, Scalaz._
 @import java.util.Locale
 
@@ -60,19 +61,7 @@
         @row.assign.map { tobanOpt =>
           @tobanOpt match {
             case (t, Some(m)) => {
-              @defining(m.status) { status =>
-                @status match {
-                  case Member.Normal => {
-                    <td><a class="btn btn-info" href="@routes.TobanController.detail(t.id, row.date.shows)">@m.shows</a></td>
-                  }
-                  case Member.Deleted => {
-                    <td><a class="btn btn-inverse" href="@routes.TobanController.detail(t.id, row.date.shows)">@m.shows</a></td>
-                  }
-                  case Member.Undefined => {
-                    <td><a class="btn btn-danger" href="@routes.TobanController.detail(t.id, row.date.shows)">@m.shows</a></td>
-                  }
-                }
-              }
+              <td><a class="btn @m.btnClass" href="@routes.TobanController.detail(t.id, row.date.shows)">@m.shows</a></td>
             }
             case (t, None) => {
               <td><a class="btn" href="@routes.TobanController.detail(t.id, row.date.shows)">assign</a></td>
