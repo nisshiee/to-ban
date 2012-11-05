@@ -40,8 +40,9 @@ class MemberTest extends Specification with TestHelper { def is =
     "findのテスト"                                                              ^
       "存在しないIDに対するfindはNoneが返る"                                    ! e14^
                                                                                 p^
-    "create→find→delete→find→deleteのテスト"                                ^
+    "create→changeColor→find→delete→find→deleteのテスト"                   ^
       """create→成功
+changeColor→成功
 find→createしたmemberがSome[Member]で返る
 delete→deleteに成功し、statusが更新されたmemberがSome[Member]で返る
 find→statusがDeletedになったmemberがSome[Member]で返る
@@ -110,7 +111,7 @@ statusが更新されたMemberがSuccessで返る"""                            
 
       val spec1 = all must have size(1)
       val spec2 = all ∘ {
-        case m @ Member(_, n, _) => (n ≟ name) && (m.some ≟ createResult)
+        case m @ Member(_, n, _, _) => (n ≟ name) && (m.some ≟ createResult)
       } must_== List(true)
 
       spec1 and spec2
@@ -141,7 +142,7 @@ statusが更新されたMemberがSuccessで返る"""                            
 
       val spec1 = all must have size(1)
       val spec2 = all ∘ {
-        case m @ Member(_, n, _) => (n ≟ name) && (m.some ≟ createResult)
+        case m @ Member(_, n, _, _) => (n ≟ name) && (m.some ≟ createResult)
       } must_== List(true)
 
       spec1 and spec2
@@ -158,6 +159,7 @@ statusが更新されたMemberがSuccessで返る"""                            
     DB.withTransaction { implicit c =>
       val validation = for {
         m1 <- Member.create("testmember")
+        m1_1 <- Member.changeColor(m1.id, Member.Green).toOption
         m2 <- Member.find(m1.id)
         m3 <- Member.delete(m1.id).toOption
         m4 <- Member.find(m1.id)
@@ -166,6 +168,7 @@ statusが更新されたMemberがSuccessで返る"""                            
         (m1.id ≟ m2.id) &&
         (m1.name ≟ m2.name) &&
         (m2.status == Member.Normal) &&
+        (m2.color == Member.Green) &&
         (m1.id ≟ m3.id) &&
         (m3.status == Member.Deleted) &&
         (m1.id ≟ m4.id) &&

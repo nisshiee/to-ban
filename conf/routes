@@ -17,6 +17,7 @@ GET     /member/detail/:id          org.nisshiee.toban.controller.MemberControll
 POST    /member/create              org.nisshiee.toban.controller.MemberController.create
 POST    /member/delete              org.nisshiee.toban.controller.MemberController.delete
 POST    /member/update              org.nisshiee.toban.controller.MemberController.update
+POST    /member/changeColor         org.nisshiee.toban.controller.MemberController.changeColor
 
 # Toban
 GET     /toban/:taskId              org.nisshiee.toban.controller.TobanController.todayDetail(taskId: Int)
