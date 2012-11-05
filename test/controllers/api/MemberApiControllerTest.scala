@@ -8,38 +8,39 @@ import play.api.db._
 import play.api.libs.json._, Json._
 
 import org.nisshiee.toban.model._
+import org.nisshiee.toban.test.TestHelper
 
-class TaskControllerTest extends Specification { def is =
+class MemberApiControllerTest extends Specification with TestHelper { def is =
 
   "getAll"                                                                      ^
-    "Taskが登録されていない場合、空ArrayのJSONが返る"                           ! e1^
-    "Taskが登録されている場合、登録されている全タスクがID順ArrayのJSONで返る"   ! e2^
+    "Memberが登録されていない場合、空ArrayのJSONが返る"                         ! e1^
+    "Memberが登録されている場合、登録されている全タスクがID順ArrayのJSONで返る" ! e2^
                                                                                 end
 
   def e1 = {
-    val result = running(FakeApplication()) {
-      TaskController.getAll("")(FakeRequest())
+    val result = runningEmptyApplication {
+      MemberController.getAll("")(FakeRequest())
     }
     val resultJs = parse(contentAsString(result))
 
     (status(result) must equalTo(OK)) and
     (header("Access-Control-Allow-Origin", result) must equalTo(Some("*"))) and
-    (resultJs.asOpt[List[Task]] must beSome.which(_.isEmpty))
+    (resultJs.asOpt[List[Member]] must beSome.which(_.isEmpty))
   }
 
-  def e2 = running(FakeApplication()) {
+  def e2 = runningEmptyApplication {
     val expectedOpt = DB.withConnection { implicit c =>
       for {
-        t1 <- Task.create("testtask1")
-        t2 <- Task.create("testtask2")
+        t1 <- Member.create("testmember1")
+        t2 <- Member.create("testmember2")
       } yield List(t1, t2)
     }
-    val result = TaskController.getAll("")(FakeRequest())
+    val result = MemberController.getAll("")(FakeRequest())
     val resultJs = parse(contentAsString(result))
 
     (expectedOpt must beSome.which(_.size == 2)) and
     (status(result) must equalTo(OK)) and
     (header("Access-Control-Allow-Origin", result) must equalTo(Some("*"))) and
-    (resultJs.asOpt[List[Task]] must equalTo(expectedOpt))
+    (resultJs.asOpt[List[Member]] must equalTo(expectedOpt))
   }
 }

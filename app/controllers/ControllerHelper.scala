@@ -11,6 +11,8 @@ trait ControllerHelper {
   val taskNameKey = "task_name"
   val taskIdKey = "task_id"
   val dateKey = "date"
+  val memoKey = "memo"
+  val memberColorKey = "color"
 
   def paramOpt[T](key: String)(implicit req: Request[Map[String, Seq[String]]], ext: Extractor[T]): Option[T] =
     req.body.get(key) >>= ext.extract

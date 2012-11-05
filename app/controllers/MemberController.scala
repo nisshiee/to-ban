@@ -65,4 +65,26 @@ object MemberController extends Controller with ControllerHelper {
 
     resultOpt | Redirect(routes.MemberController.index)
   }
+
+  def changeColor = Action(parse.urlFormEncoded) { implicit req =>
+    sealed trait Redirect
+    case object Index extends Redirect
+    case class Detail(id: Int) extends Redirect
+
+    val redirect = (for {
+      memberId <- paramVld[Redirect, Int](memberIdKey)(Index)
+      cid <- paramVld[Redirect, Int](memberColorKey)(Detail(memberId))
+      color = Member.Color(cid)
+      changed = DB.withTransaction { implicit c => Member.changeColor(memberId, color) }
+      result <- changed.fail map {
+        case Member.Color.UnknownMember => Index
+        case Member.Color.UnknownColor => Detail(memberId)
+      } validation
+    } yield Detail(memberId)) ||| identity
+
+    redirect match {
+      case Index => Redirect(routes.MemberController.index)
+      case Detail(id) => Redirect(routes.MemberController.detail(id))
+    }
+  }
 }

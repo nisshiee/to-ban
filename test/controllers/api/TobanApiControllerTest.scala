@@ -9,8 +9,9 @@ import play.api.libs.json._, Json._
 
 import play.api.mvc._
 import org.nisshiee.toban.model._
+import org.nisshiee.toban.test.TestHelper
 
-class TobanControllerTest extends Specification { def is =
+class TobanApiControllerTest extends Specification with TestHelper { def is =
 
   "get"                                                                         ^
     "Tobanが登録されていない場合、空ObjectのJSONが返る"                         ! e1^
@@ -22,7 +23,7 @@ class TobanControllerTest extends Specification { def is =
   val empty = Map[String, String]()
 
   def e1 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       TobanController.get(1, "2012-01-01", "")(FakeRequest())
     }
     val resultJs = parse(contentAsString(result))
@@ -32,7 +33,7 @@ class TobanControllerTest extends Specification { def is =
     (resultJs.asOpt[Empty] must beSome.which(empty ==))
   }
 
-  def e2 = running(FakeApplication()) {
+  def e2 = runningEmptyApplication {
     val expectedOpt = DB.withConnection { implicit c =>
       for {
         task <- Task.create("testtask")
@@ -56,7 +57,7 @@ class TobanControllerTest extends Specification { def is =
     }
   }
 
-  def e3 = running(FakeApplication()) {
+  def e3 = runningEmptyApplication {
     val expectedOpt = DB.withConnection { implicit c =>
       for {
         task <- Task.create("testtask")

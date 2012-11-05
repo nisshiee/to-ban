@@ -2,6 +2,7 @@
 
 @import org.nisshiee.toban.controller._
 @import org.nisshiee.toban.model._
+@import org.nisshiee.toban.util.ViewHelper._
 @import scalaz._, Scalaz._
 
 @main("[to-ban] toban detail") {
@@ -17,7 +18,7 @@
       @status match {
         case Member.Normal => {
           <p style="margin-top:9px;">
-            <span class="label label-info" style="font-size:24px;">@toban.member.shows</span>
+            <span class="label @toban.member.labelClass" style="font-size:24px;">@toban.member.shows</span>
           </p>
         }
         case Member.Deleted => {

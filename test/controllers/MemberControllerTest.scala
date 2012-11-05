@@ -8,8 +8,9 @@ import play.api.db._
 import scalaz._, Scalaz._
 
 import org.nisshiee.toban.model._
+import org.nisshiee.toban.test.TestHelper
 
-class MemberControllerTest extends Specification { def is =
+class MemberControllerTest extends Specification with TestHelper { def is =
 
   "index"                                                                       ^
     "OKが返る"                                                                  ! e1^
@@ -29,25 +30,30 @@ class MemberControllerTest extends Specification { def is =
   "update"                                                                      ^
     "存在しないIDをリクエストした場合、indexにリダイレクト"                     ! e8^
     "存在するタスクをリクエストすると、そのタスクのdetailにリダイレクト"        ! e9^
+                                                                                p^
+  "changeColor"                                                                 ^
+    "存在しないIDをリクエストした場合、indexにリダイレクト"                     ! e10^
+    "Undefinedなcolorをリクエストすると、そのmemberのdetailにリダイレクト"      ! e11^
+    "正常なリクエストすると、そのmemberのdetailにリダイレクト"                  ! e12^
                                                                                 end
 
   def e1 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       MemberController.index(FakeRequest())
     }
     status(result) must equalTo(OK)
   }
 
   def e2 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       MemberController.detail(1)(FakeRequest())
     }
     redirectLocation(result) must beSome.which("/member" ==)
   }
 
   def e3 = {
-    val result = running(FakeApplication()) {
-      val Some(Member(id, _, _)) = DB.withTransaction { implicit c =>
+    val result = runningEmptyApplication {
+      val Some(Member(id, _, _, _)) = DB.withTransaction { implicit c =>
         Member.create("testmember")
       }
       MemberController.detail(id)(FakeRequest())
@@ -56,7 +62,7 @@ class MemberControllerTest extends Specification { def is =
   }
 
   def e4 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.MemberController.create.toString
@@ -69,7 +75,7 @@ class MemberControllerTest extends Specification { def is =
   }
 
   def e5 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.MemberController.create.toString
@@ -82,7 +88,7 @@ class MemberControllerTest extends Specification { def is =
   }
 
   def e6 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.MemberController.delete.toString
@@ -95,7 +101,7 @@ class MemberControllerTest extends Specification { def is =
   }
 
   def e7 = {
-    val resultOpt = running(FakeApplication()) {
+    val resultOpt = runningEmptyApplication {
       val memberIdOpt = DB.withConnection { implicit c =>
         Member.create("testmember") ∘ (_.id)
       }
@@ -119,7 +125,7 @@ class MemberControllerTest extends Specification { def is =
   }
 
   def e8 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.MemberController.update.toString
@@ -136,7 +142,7 @@ class MemberControllerTest extends Specification { def is =
 
   def e9 = {
     val newName = "newmembername"
-    val resultOpt = running(FakeApplication()) {
+    val resultOpt = runningEmptyApplication {
       val memberIdOpt = DB.withConnection { implicit c =>
         Member.create("testmember") ∘ (_.id)
       }
@@ -160,5 +166,65 @@ class MemberControllerTest extends Specification { def is =
       rlocation <- redirectLocation(result)
     } yield rlocation startsWith "/member/detail"
     checkOpt must beSome.which(identity)
+  }
+
+  def e10 = {
+    val result = runningEmptyApplication {
+      val request = new FakeRequest(
+        "POST"
+        ,routes.MemberController.changeColor.toString
+        ,FakeHeaders()
+        ,Map(
+           MemberController.memberIdKey -> Seq("1")
+          ,MemberController.memberColorKey -> Seq("0")
+        )
+      )
+      MemberController.changeColor(request)
+    }
+    redirectLocation(result) must beSome.which("/member" ==)
+  }
+
+  def e11 = {
+    val resultOpt = runningEmptyApplication {
+      val memberIdOpt = DB.withConnection { implicit c =>
+        Member.create("testmember") ∘ (_.id)
+      }
+
+      memberIdOpt map { memberId =>
+        val request = new FakeRequest(
+           "POST"
+          ,routes.MemberController.changeColor.toString
+          ,FakeHeaders()
+          ,Map(
+             MemberController.memberIdKey -> Seq(memberId.toString)
+            ,MemberController.memberColorKey -> Seq("99")
+          )
+        )
+        redirectLocation(MemberController.changeColor(request)) must beSome.which("/member/detail/" + memberId.toString ==)
+      }
+    }
+    resultOpt must beSome.like { case a => a }
+  }
+
+  def e12 = {
+    val resultOpt = runningEmptyApplication {
+      val memberIdOpt = DB.withConnection { implicit c =>
+        Member.create("testmember") ∘ (_.id)
+      }
+
+      memberIdOpt map { memberId =>
+        val request = new FakeRequest(
+           "POST"
+          ,routes.MemberController.changeColor.toString
+          ,FakeHeaders()
+          ,Map(
+             MemberController.memberIdKey -> Seq(memberId.toString)
+            ,MemberController.memberColorKey -> Seq("1")
+          )
+        )
+        redirectLocation(MemberController.changeColor(request)) must beSome.which("/member/detail/" + memberId.toString ==)
+      }
+    }
+    resultOpt must beSome.like { case a => a }
   }
 }

@@ -5,8 +5,8 @@ import org.nisshiee.toban.model._
 
 object MemberDb {
 
-  val parser: RowParser[Member] = int("id") ~ str("name") ~ int("status") map {
-    case id ~ name ~ s => Member(id, name, Member.Status(s))
+  val parser: RowParser[Member] = int("id") ~ str("name") ~ int("status") ~ int("color") map {
+    case id ~ name ~ s ~ c => Member(id, name, Member.Status(s), Member.Color(c))
   }
 
   val createSql = SQL("""
@@ -19,7 +19,7 @@ INSERT INTO member
 
   val allSql = SQL("""
 SELECT
-    id, name, status
+    id, name, status, color
   FROM
     member
   WHERE
@@ -31,7 +31,7 @@ SELECT
 
   val findSql = SQL("""
 SELECT
-    id, name, status
+    id, name, status, color
   FROM
     member
   WHERE

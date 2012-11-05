@@ -7,7 +7,9 @@ import play.api.Play.current
 import scalaz._, Scalaz._, Validation.Monad._
 import play.api.db._
 
-class TobanTest extends Specification { def is =
+import org.nisshiee.toban.test.TestHelper
+
+class TobanTest extends Specification with TestHelper { def is =
 
   "Tobanケースクラスのテスト"                                                   ^
     "CRUDテスト"                                                                ^
@@ -40,13 +42,13 @@ class TobanTest extends Specification { def is =
       "dateが異なる場合はfalse"                                                 ! e15^
                                                                                 end
 
-  def e1 = running(FakeApplication()) {
+  def e1 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       Toban.find(1, LocalDate.today) must beNone
     }
   }
 
-  def e2 = running(FakeApplication()) {
+  def e2 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val createResult = for {
         m <- Member.create("testmember")
@@ -56,7 +58,7 @@ class TobanTest extends Specification { def is =
     }
   }
 
-  def e3 = running(FakeApplication()) {
+  def e3 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val createResult = for {
         t <- Task.create("testtask")
@@ -66,7 +68,7 @@ class TobanTest extends Specification { def is =
     }
   }
 
-  def e4 = running(FakeApplication()) {
+  def e4 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val today = LocalDate.today
       val createResult = for {
@@ -81,7 +83,7 @@ class TobanTest extends Specification { def is =
     }
   }
 
-  def e5 = running(FakeApplication()) {
+  def e5 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val today = LocalDate.today
       val updateResult = for {
@@ -99,20 +101,21 @@ class TobanTest extends Specification { def is =
     }
   }
 
-  def e6 = running(FakeApplication()) {
+  def e6 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val today = LocalDate.today
       val checkResult = for {
         t <- Task.create("testtask")
         m <- Member.create("testmember")
-        createResult = Toban.replace(t.id, today, m.id)
+        m2 <- Member.changeColor(m.id, Member.Green).toOption
+        createResult = Toban.replace(t.id, today, m2.id)
         findResult = Toban.find(t.id, today).toSuccess(Toban.DbError)
       } yield (createResult == findResult)
       checkResult must beSome.which(identity)
     }
   }
 
-  def e7 = running(FakeApplication()) {
+  def e7 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val today = LocalDate.today
       val checkResult = for {
@@ -127,14 +130,14 @@ class TobanTest extends Specification { def is =
     }
   }
 
-  def e8 = running(FakeApplication()) {
+  def e8 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val today = LocalDate.today
       Toban.delete(1, today) must beFalse
     }
   }
 
-  def e9 = running(FakeApplication()) {
+  def e9 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val today = LocalDate.today
       val resultOpt = for {
@@ -145,7 +148,7 @@ class TobanTest extends Specification { def is =
     }
   }
 
-  def e10 = running(FakeApplication()) {
+  def e10 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val today = LocalDate.today
       val resultOpt = for {
@@ -158,7 +161,7 @@ class TobanTest extends Specification { def is =
     }
   }
 
-  def e11 = running(FakeApplication()) {
+  def e11 = runningEmptyApplication {
     DB.withTransaction { implicit c =>
       val today = LocalDate.today
       val resultOpt = for {

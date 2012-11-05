@@ -2,6 +2,7 @@
 
 @import org.nisshiee.toban.controller._
 @import org.nisshiee.toban.model._
+@import org.nisshiee.toban.util.ViewHelper._
 @import scalaz._, Scalaz._
 
 @main("[to-ban] member detail") {
@@ -16,7 +17,7 @@
     </tr>
     <tr>
       <th>name</th>
-      <td>@member.name</td>
+      <td><span class="label @member.labelClass">@member.name</span></td>
     </tr>
     <tr>
       <th>status</th>
@@ -31,6 +32,56 @@
     <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
     <input type="text" required name="@MemberController.memberNameKey" value="@member.name">
     <input class="btn btn-primary" type="submit" value="update">
+  </form>
+
+  <hr>
+
+  <h3>change color</h3>
+  <div class="btn-group">
+    @defining(member.color) { color =>
+      @color match {
+        case Member.Blue => {
+          <input class="btn btn-info" type="submit" value="Blue" form="change-blue" disabled>
+          <input class="btn btn-success" type="submit" value="Green" form="change-green">
+          <input class="btn btn-warning" type="submit" value="Yellow" form="change-yellow">
+          <input class="btn btn-danger" type="submit" value="Red" form="change-red">
+        }
+        case Member.Green => {
+          <input class="btn btn-info" type="submit" value="Blue" form="change-blue">
+          <input class="btn btn-success" type="submit" value="Green" form="change-green" disabled>
+          <input class="btn btn-warning" type="submit" value="Yellow" form="change-yellow">
+          <input class="btn btn-danger" type="submit" value="Red" form="change-red">
+        }
+        case Member.Yellow => {
+          <input class="btn btn-info" type="submit" value="Blue" form="change-blue">
+          <input class="btn btn-success" type="submit" value="Green" form="change-green">
+          <input class="btn btn-warning" type="submit" value="Yellow" form="change-yellow" disabled>
+          <input class="btn btn-danger" type="submit" value="Red" form="change-red">
+        }
+        case Member.Red => {
+          <input class="btn btn-info" type="submit" value="Blue" form="change-blue">
+          <input class="btn btn-success" type="submit" value="Green" form="change-green">
+          <input class="btn btn-warning" type="submit" value="Yellow" form="change-yellow">
+          <input class="btn btn-danger" type="submit" value="Red" form="change-red" disabled>
+        }
+      }
+    }
+  </div>
+  <form class="form-inline" action="@routes.MemberController.changeColor" method="post" id="change-blue">
+    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
+    <input type="hidden" name="@MemberController.memberColorKey" value="0">
+  </form>
+  <form class="form-inline" action="@routes.MemberController.changeColor" method="post" id="change-green">
+    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
+    <input type="hidden" name="@MemberController.memberColorKey" value="1">
+  </form>
+  <form class="form-inline" action="@routes.MemberController.changeColor" method="post" id="change-yellow">
+    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
+    <input type="hidden" name="@MemberController.memberColorKey" value="2">
+  </form>
+  <form class="form-inline" action="@routes.MemberController.changeColor" method="post" id="change-red">
+    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
+    <input type="hidden" name="@MemberController.memberColorKey" value="3">
   </form>
 
   <hr>

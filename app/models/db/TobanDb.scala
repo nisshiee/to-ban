@@ -11,12 +11,13 @@ object TobanDb {
     date("toban.date") ~
     int("member.id") ~
     str("member.name") ~
-    int("member.status") map {
-      case taskId ~ taskName ~ date ~ memberId ~ memberName ~ s =>
+    int("member.status") ~
+    int("member.color") map {
+      case taskId ~ taskName ~ date ~ memberId ~ memberName ~ s ~ c =>
         Toban(
            Task(taskId, taskName)
           ,date.toLocalDate
-          ,Member(memberId, memberName, Member.Status(s))
+          ,Member(memberId, memberName, Member.Status(s), Member.Color(c))
         )
     }
 
@@ -28,6 +29,7 @@ SELECT
     ,member.id
     ,member.name
     ,member.status
+    ,member.color
   FROM
     toban
     ,task

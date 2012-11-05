@@ -7,8 +7,9 @@ import play.api.Play.current
 import play.api.db._
 
 import org.nisshiee.toban.model._
+import org.nisshiee.toban.test.TestHelper
 
-class TobanControllerTest extends Specification { def is =
+class TobanControllerTest extends Specification with TestHelper { def is =
 
   "todayDetail"                                                                                     ^
     "存在しないタスクIDをリクエストした場合、/taskにリダイレクト"                                   ! e1^
@@ -34,14 +35,14 @@ class TobanControllerTest extends Specification { def is =
                                                                                                     end
 
   def e1 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       TobanController.todayDetail(1)(FakeRequest())
     }
     redirectLocation(result) must beSome.which("/task" ==)
   }
 
   def e2 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val Some(Task(id, _)) = DB.withTransaction { implicit c =>
         Task.create("testtask")
       }
@@ -51,14 +52,14 @@ class TobanControllerTest extends Specification { def is =
   }
 
   def e3 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       TobanController.detail(1, "2012-01-01")(FakeRequest())
     }
     redirectLocation(result) must beSome.which("/task" ==)
   }
 
   def e4 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val Some(Task(id, _)) = DB.withTransaction { implicit c =>
         Task.create("testtask")
       }
@@ -68,7 +69,7 @@ class TobanControllerTest extends Specification { def is =
   }
 
   def e5 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val Some(Task(id, _)) = DB.withTransaction { implicit c =>
         Task.create("testtask")
       }
@@ -78,9 +79,9 @@ class TobanControllerTest extends Specification { def is =
   }
 
   def e6 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val (taskId, memberId) = DB.withTransaction { implicit c =>
-        val Some(Member(memberId, _, _)) = Member.create("testmember")
+        val Some(Member(memberId, _, _,_)) = Member.create("testmember")
         (1, memberId)
       }
       val dateStr = "2012-01-01"
@@ -101,7 +102,7 @@ class TobanControllerTest extends Specification { def is =
 
   def e7 = {
     val dateStr = "2012-01-01"
-    val (result, taskId) = running(FakeApplication()) {
+    val (result, taskId) = runningEmptyApplication {
       val (taskId, memberId) = DB.withTransaction { implicit c =>
         val Some(Task(taskId, _)) = Task.create("testtask")
         (taskId, 1)
@@ -124,10 +125,10 @@ class TobanControllerTest extends Specification { def is =
   }
 
   def e8 = {
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val (taskId, memberId) = DB.withTransaction { implicit c =>
         val Some(Task(taskId, _)) = Task.create("testtask")
-        val Some(Member(memberId, _, _)) = Member.create("testmember")
+        val Some(Member(memberId, _, _, _)) = Member.create("testmember")
         (taskId, memberId)
       }
       val dateStr = "2012-01-50"
@@ -147,10 +148,10 @@ class TobanControllerTest extends Specification { def is =
   }
 
   def e9 = {
-    val (result, taskId, dateStr) = running(FakeApplication()) {
+    val (result, taskId, dateStr) = runningEmptyApplication {
       val (taskId, memberId) = DB.withTransaction { implicit c =>
         val Some(Task(taskId, _)) = Task.create("testtask")
-        val Some(Member(memberId, _, _)) = Member.create("testmember")
+        val Some(Member(memberId, _, _, _)) = Member.create("testmember")
         (taskId, memberId)
       }
       val dateStr = "2012-01-01"
@@ -171,7 +172,7 @@ class TobanControllerTest extends Specification { def is =
 
   def e10 = {
     val dateStr = "2012-01-01"
-    val (result, taskId) = running(FakeApplication()) {
+    val (result, taskId) = runningEmptyApplication {
       val (taskId, memberId) = DB.withTransaction { implicit c =>
         val Some(Task(taskId, _)) = Task.create("testtask")
         (taskId, 1)
@@ -194,7 +195,7 @@ class TobanControllerTest extends Specification { def is =
 
   def e11 = {
     val dateStr = "2012-01-50"
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.TobanController.unassign.toString
@@ -211,7 +212,7 @@ class TobanControllerTest extends Specification { def is =
 
   def e12 = {
     val dateStr = "2012-01-01"
-    val result = running(FakeApplication()) {
+    val result = runningEmptyApplication {
       val request = new FakeRequest(
         "POST"
         ,routes.TobanController.unassign.toString
@@ -229,7 +230,7 @@ class TobanControllerTest extends Specification { def is =
 
   def e13 = {
     val dateStr = "2012-01-01"
-    val resultOpt = running(FakeApplication()) {
+    val resultOpt = runningEmptyApplication {
       for {
         task <- DB.withTransaction { implicit c => Task.create("testtask") }
         request = new FakeRequest(
@@ -254,7 +255,7 @@ class TobanControllerTest extends Specification { def is =
   def e14 = {
     val dateStr = "2012-01-01"
     val date = new LocalDate(dateStr)
-    val resultOpt = running(FakeApplication()) {
+    val resultOpt = runningEmptyApplication {
       for {
         task <- DB.withTransaction { implicit c => Task.create("testtask") }
         member <- DB.withTransaction { implicit c => Member.create("testmember") }
