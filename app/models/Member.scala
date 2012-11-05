@@ -5,9 +5,14 @@ import java.sql.Connection
 
 import org.nisshiee.toban.model.db.MemberDb._
 
-case class Member(id: Int, name: String, status: Member.Status)
+case class Member(
+   id: Int
+  ,name: String
+  ,status: Member.Status
+  ,color: Member.Color = Member.Blue
+)
 
-object Member {
+object Member extends MemberColor {
 
   sealed trait Status
   case object Normal extends Status
@@ -66,7 +71,7 @@ object Member {
 trait Members {
 
   implicit lazy val MemberShow = shows[Member] {
-    case Member(_, name, _) => Option(name) | ""
+    case Member(_, name, _, _) => Option(name) | ""
   }
 
   implicit lazy val MemberEqual = equalBy[Member, Int](_.id)

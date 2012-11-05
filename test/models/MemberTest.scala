@@ -110,7 +110,7 @@ statusが更新されたMemberがSuccessで返る"""                            
 
       val spec1 = all must have size(1)
       val spec2 = all ∘ {
-        case m @ Member(_, n, _) => (n ≟ name) && (m.some ≟ createResult)
+        case m @ Member(_, n, _, _) => (n ≟ name) && (m.some ≟ createResult)
       } must_== List(true)
 
       spec1 and spec2
@@ -141,7 +141,7 @@ statusが更新されたMemberがSuccessで返る"""                            
 
       val spec1 = all must have size(1)
       val spec2 = all ∘ {
-        case m @ Member(_, n, _) => (n ≟ name) && (m.some ≟ createResult)
+        case m @ Member(_, n, _, _) => (n ≟ name) && (m.some ≟ createResult)
       } must_== List(true)
 
       spec1 and spec2

@@ -48,7 +48,7 @@ class MemberControllerTest extends Specification with TestHelper { def is =
 
   def e3 = {
     val result = runningEmptyApplication {
-      val Some(Member(id, _, _)) = DB.withTransaction { implicit c =>
+      val Some(Member(id, _, _, _)) = DB.withTransaction { implicit c =>
         Member.create("testmember")
       }
       MemberController.detail(id)(FakeRequest())

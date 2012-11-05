@@ -81,7 +81,7 @@ class TobanControllerTest extends Specification with TestHelper { def is =
   def e6 = {
     val result = runningEmptyApplication {
       val (taskId, memberId) = DB.withTransaction { implicit c =>
-        val Some(Member(memberId, _, _)) = Member.create("testmember")
+        val Some(Member(memberId, _, _,_)) = Member.create("testmember")
         (1, memberId)
       }
       val dateStr = "2012-01-01"
@@ -128,7 +128,7 @@ class TobanControllerTest extends Specification with TestHelper { def is =
     val result = runningEmptyApplication {
       val (taskId, memberId) = DB.withTransaction { implicit c =>
         val Some(Task(taskId, _)) = Task.create("testtask")
-        val Some(Member(memberId, _, _)) = Member.create("testmember")
+        val Some(Member(memberId, _, _, _)) = Member.create("testmember")
         (taskId, memberId)
       }
       val dateStr = "2012-01-50"
@@ -151,7 +151,7 @@ class TobanControllerTest extends Specification with TestHelper { def is =
     val (result, taskId, dateStr) = runningEmptyApplication {
       val (taskId, memberId) = DB.withTransaction { implicit c =>
         val Some(Task(taskId, _)) = Task.create("testtask")
-        val Some(Member(memberId, _, _)) = Member.create("testmember")
+        val Some(Member(memberId, _, _, _)) = Member.create("testmember")
         (taskId, memberId)
       }
       val dateStr = "2012-01-01"
