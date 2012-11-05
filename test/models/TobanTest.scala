@@ -107,7 +107,8 @@ class TobanTest extends Specification with TestHelper { def is =
       val checkResult = for {
         t <- Task.create("testtask")
         m <- Member.create("testmember")
-        createResult = Toban.replace(t.id, today, m.id)
+        m2 <- Member.changeColor(m.id, Member.Green).toOption
+        createResult = Toban.replace(t.id, today, m2.id)
         findResult = Toban.find(t.id, today).toSuccess(Toban.DbError)
       } yield (createResult == findResult)
       checkResult must beSome.which(identity)
