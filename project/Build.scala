@@ -5,7 +5,7 @@ import PlayProject._
 object ApplicationBuild extends Build {
 
     val appName         = "to-ban"
-    val appVersion      = "1.6.1"
+    val appVersion      = "1.6.2-SNAPSHOT"
 
     val appDependencies = Seq(
       // Add your project dependencies here,
