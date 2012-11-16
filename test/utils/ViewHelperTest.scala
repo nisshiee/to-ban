@@ -26,6 +26,9 @@ object ViewHelperTest extends Specification with DataTables { def is =
     Member.Color.Undefined ! "label-info"      |
     Member.Green           ! "label-success"   |
     Member.Yellow          ! "label-warning"   |
+    Member.Dark            ! "label-dark"      |
+    Member.Silver          ! "label-silver"    |
+    Member.Gold            ! "label-gold"      |
     Member.Red             ! "label-important" |> { (color, label) =>
       Member(1, "testmember", Member.Normal, color).labelClass must equalTo(label)
     }
@@ -38,6 +41,9 @@ object ViewHelperTest extends Specification with DataTables { def is =
     Member.Color.Undefined ! "btn-info"    |
     Member.Green           ! "btn-success" |
     Member.Yellow          ! "btn-warning" |
+    Member.Dark            ! "btn-dark"    |
+    Member.Silver          ! "btn-silver"  |
+    Member.Gold            ! "btn-gold"    |
     Member.Red             ! "btn-danger"  |> { (color, btn) =>
       Member(1, "testmember", Member.Normal, color).btnClass must equalTo(btn)
     }
