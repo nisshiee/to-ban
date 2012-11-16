@@ -38,102 +38,21 @@
 
   <h3>change color</h3>
   <div class="btn-group">
-    @defining(member.color) { color =>
-      @color match {
-        case Member.Blue => {
-          <input class="btn btn-info" type="submit" value="Blue" form="change-blue" disabled>
-          <input class="btn btn-success" type="submit" value="Green" form="change-green">
-          <input class="btn btn-warning" type="submit" value="Yellow" form="change-yellow">
-          <input class="btn btn-danger" type="submit" value="Red" form="change-red">
-          <input class="btn btn-dark" type="submit" value="Dark" form="change-dark">
-          <input class="btn btn-silver" type="submit" value="Silver" form="change-silver">
-          <input class="btn btn-gold" type="submit" value="Gold" form="change-gold">
-        }
-        case Member.Green => {
-          <input class="btn btn-info" type="submit" value="Blue" form="change-blue">
-          <input class="btn btn-success" type="submit" value="Green" form="change-green" disabled>
-          <input class="btn btn-warning" type="submit" value="Yellow" form="change-yellow">
-          <input class="btn btn-danger" type="submit" value="Red" form="change-red">
-          <input class="btn btn-dark" type="submit" value="Dark" form="change-dark">
-          <input class="btn btn-silver" type="submit" value="Silver" form="change-silver">
-          <input class="btn btn-gold" type="submit" value="Gold" form="change-gold">
-        }
-        case Member.Yellow => {
-          <input class="btn btn-info" type="submit" value="Blue" form="change-blue">
-          <input class="btn btn-success" type="submit" value="Green" form="change-green">
-          <input class="btn btn-warning" type="submit" value="Yellow" form="change-yellow" disabled>
-          <input class="btn btn-danger" type="submit" value="Red" form="change-red">
-          <input class="btn btn-dark" type="submit" value="Dark" form="change-dark">
-          <input class="btn btn-silver" type="submit" value="Silver" form="change-silver">
-          <input class="btn btn-gold" type="submit" value="Gold" form="change-gold">
-        }
-        case Member.Red => {
-          <input class="btn btn-info" type="submit" value="Blue" form="change-blue">
-          <input class="btn btn-success" type="submit" value="Green" form="change-green">
-          <input class="btn btn-warning" type="submit" value="Yellow" form="change-yellow">
-          <input class="btn btn-danger" type="submit" value="Red" form="change-red" disabled>
-          <input class="btn btn-dark" type="submit" value="Dark" form="change-dark">
-          <input class="btn btn-silver" type="submit" value="Silver" form="change-silver">
-          <input class="btn btn-gold" type="submit" value="Gold" form="change-gold">
-        }
-        case Member.Dark => {
-          <input class="btn btn-info" type="submit" value="Blue" form="change-blue">
-          <input class="btn btn-success" type="submit" value="Green" form="change-green">
-          <input class="btn btn-warning" type="submit" value="Yellow" form="change-yellow">
-          <input class="btn btn-danger" type="submit" value="Red" form="change-red">
-          <input class="btn btn-dark" type="submit" value="Dark" form="change-dark" disabled>
-          <input class="btn btn-silver" type="submit" value="Silver" form="change-silver">
-          <input class="btn btn-gold" type="submit" value="Gold" form="change-gold">
-        }
-        case Member.Silver => {
-          <input class="btn btn-info" type="submit" value="Blue" form="change-blue">
-          <input class="btn btn-success" type="submit" value="Green" form="change-green">
-          <input class="btn btn-warning" type="submit" value="Yellow" form="change-yellow">
-          <input class="btn btn-danger" type="submit" value="Red" form="change-red">
-          <input class="btn btn-dark" type="submit" value="Dark" form="change-dark">
-          <input class="btn btn-silver" type="submit" value="Silver" form="change-silver" disabled>
-          <input class="btn btn-gold" type="submit" value="Gold" form="change-gold">
-        }
-        case Member.Gold => {
-          <input class="btn btn-info" type="submit" value="Blue" form="change-blue">
-          <input class="btn btn-success" type="submit" value="Green" form="change-green">
-          <input class="btn btn-warning" type="submit" value="Yellow" form="change-yellow">
-          <input class="btn btn-danger" type="submit" value="Red" form="change-red">
-          <input class="btn btn-dark" type="submit" value="Dark" form="change-dark">
-          <input class="btn btn-silver" type="submit" value="Silver" form="change-silver">
-          <input class="btn btn-gold" type="submit" value="Gold" form="change-gold" disabled>
-        }
+    @colors.map { c =>
+      @if(c == member.color) {
+        <input class="btn @c.btnClass" type="submit" value="@c.toString" form="@c.changeFormId" disabled>
+      } else {
+        <input class="btn @c.btnClass" type="submit" value="@c.toString" form="@c.changeFormId">
       }
     }
   </div>
-  <form class="form-inline" action="@routes.MemberController.changeColor" method="post" id="change-blue">
-    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
-    <input type="hidden" name="@MemberController.memberColorKey" value="0">
-  </form>
-  <form class="form-inline" action="@routes.MemberController.changeColor" method="post" id="change-green">
-    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
-    <input type="hidden" name="@MemberController.memberColorKey" value="1">
-  </form>
-  <form class="form-inline" action="@routes.MemberController.changeColor" method="post" id="change-yellow">
-    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
-    <input type="hidden" name="@MemberController.memberColorKey" value="2">
-  </form>
-  <form class="form-inline" action="@routes.MemberController.changeColor" method="post" id="change-red">
-    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
-    <input type="hidden" name="@MemberController.memberColorKey" value="3">
-  </form>
-  <form class="form-inline" action="@routes.MemberController.changeColor" method="post" id="change-dark">
-    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
-    <input type="hidden" name="@MemberController.memberColorKey" value="4">
-  </form>
-  <form class="form-inline" action="@routes.MemberController.changeColor" method="post" id="change-silver">
-    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
-    <input type="hidden" name="@MemberController.memberColorKey" value="5">
-  </form>
-  <form class="form-inline" action="@routes.MemberController.changeColor" method="post" id="change-gold">
-    <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
-    <input type="hidden" name="@MemberController.memberColorKey" value="6">
-  </form>
+
+  @colors.map { c =>
+    <form class="form-inline" action="@routes.MemberController.changeColor" method="post" id="@c.changeFormId">
+      <input type="hidden" name="@MemberController.memberIdKey" value="@member.id">
+      <input type="hidden" name="@MemberController.memberColorKey" value="@(Member.Color.unapply(c) | 0)">
+    </form>
+  }
 
   <hr>
 
