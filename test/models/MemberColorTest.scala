@@ -17,6 +17,7 @@ class MemberColorTest extends Specification with DataTables with TestHelper { de
       "1 => Green"                                                              ! e2^
       "2 => Yellow"                                                             ! e3^
       "3 => Red"                                                                ! e4^
+      "4-6 => Dark, Silver, Gold"                                               ! e4_1^
       "それ以外 => UndefinedColor"                                              ! e5^
                                                                                 p^
     "unapplyのテスト"                                                           ^
@@ -24,6 +25,7 @@ class MemberColorTest extends Specification with DataTables with TestHelper { de
       "Green => Some(1)"                                                        ! e7^
       "Yellow => Some(2)"                                                       ! e8^
       "Red => Some(3)"                                                          ! e9^
+      "Dark, Silver, Gold => Some(4), Some(5), Some(6)"                         ! e9_1^
       "Undefined => None"                                                       ! e10^
       "パターンマッチで使えること"                                              ! e11^
                                                                                 p^
@@ -41,9 +43,17 @@ class MemberColorTest extends Specification with DataTables with TestHelper { de
   def e3 = Member.Color(2) must equalTo(Member.Yellow)
   def e4 = Member.Color(3) must equalTo(Member.Red)
 
+  def e4_1 =
+    "code" | "color"       |
+    4      ! Member.Dark   |
+    5      ! Member.Silver |
+    6      ! Member.Gold   |> { (code, color) =>
+      Member.Color(code) must equalTo(color)
+    }
+
   def e5 =
     "in" | "result"               |
-    4    ! Member.Color.Undefined |
+    7    ! Member.Color.Undefined |
     99   ! Member.Color.Undefined |
     -1   ! Member.Color.Undefined |> {
       (in, result) => Member.Color(in) must equalTo(result)
@@ -53,6 +63,15 @@ class MemberColorTest extends Specification with DataTables with TestHelper { de
   def e7 = Member.Color.unapply(Member.Green) must equalTo(1.some)
   def e8 = Member.Color.unapply(Member.Yellow) must equalTo(2.some)
   def e9 = Member.Color.unapply(Member.Red) must equalTo(3.some)
+
+  def e9_1 =
+    "color"       | "code" |
+    Member.Dark   ! 4      |
+    Member.Silver ! 5      |
+    Member.Gold   ! 6      |> { (color, code) =>
+      Member.Color.unapply(color) must beSome.which(code ==)
+    }
+
   def e10 = Member.Color.unapply(Member.Color.Undefined) must beNone
   def e11 = {
     val Member.Color(i) = Member.Blue

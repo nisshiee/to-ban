@@ -12,6 +12,9 @@ trait MemberColor {
   case object Green extends Color
   case object Yellow extends Color
   case object Red extends Color
+  case object Dark extends Color
+  case object Silver extends Color
+  case object Gold extends Color
 
   object Color {
     case object Undefined extends Color
@@ -21,6 +24,9 @@ trait MemberColor {
       case 1 => Green
       case 2 => Yellow
       case 3 => Red
+      case 4 => Dark
+      case 5 => Silver
+      case 6 => Gold
       case _ => Undefined
     }
 
@@ -29,6 +35,9 @@ trait MemberColor {
       case Green => 1.some
       case Yellow => 2.some
       case Red => 3.some
+      case Dark => 4.some
+      case Silver => 5.some
+      case Gold => 6.some
       case Undefined => none
     }
 
