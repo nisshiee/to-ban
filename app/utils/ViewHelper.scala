@@ -21,6 +21,9 @@ object ViewHelper {
       case (_, Member.Green) => "btn-success"
       case (_, Member.Yellow) => "btn-warning"
       case (_, Member.Red) => "btn-danger"
+      case (_, Member.Dark) => "btn-dark"
+      case (_, Member.Silver) => "btn-silver"
+      case (_, Member.Gold) => "btn-gold"
       case _ => "btn-info"
     }
   }
