@@ -5577,6 +5577,36 @@ a.badge:hover {
   background-color: #2d6987;
 }
 
+.label-dark,
+.badge-dark {
+  background-color: #663333;
+}
+
+.label-dark[href],
+.badge-dark[href] {
+  background-color: #442222;
+}
+
+.label-silver,
+.badge-silver {
+  background-color: #3d7885;
+}
+
+.label-silver[href],
+.badge-silver[href] {
+  background-color: #2d5862;
+}
+
+.label-gold,
+.badge-gold {
+  background-color: #80843a;
+}
+
+.label-gold[href],
+.badge-gold[href] {
+  background-color: #5e612a;
+}
+
 .label-inverse,
 .badge-inverse {
   background-color: #333333;

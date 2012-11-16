@@ -13,6 +13,9 @@ object ViewHelper {
       case (_, Member.Green) => "label-success"
       case (_, Member.Yellow) => "label-warning"
       case (_, Member.Red) => "label-important"
+      case (_, Member.Dark) => "label-dark"
+      case (_, Member.Silver) => "label-silver"
+      case (_, Member.Gold) => "label-gold"
       case _ => "label-info"
     }
 
